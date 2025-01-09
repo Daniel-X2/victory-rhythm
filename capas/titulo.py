@@ -11,6 +11,6 @@ def info(musica):
     nome=artist
     titulo=album
     return duracao,nome,titulo
-caminhos=open('ww','r+')
+
 
 

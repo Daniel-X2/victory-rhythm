@@ -17,6 +17,7 @@ class App(customtkinter.CTk):
         self.musica_atual='kendrik.mp3'
     #acho necessario um verificador pra os arquivos no diretorio
         self.geometry('400x600')
+        self.fundo()
         self.resizable(width=False,height=False)   #aqui evita que a tela seja redimesionada
         self.capa_musica()
         self.botao()
@@ -29,6 +30,10 @@ class App(customtkinter.CTk):
         self.update_label()
         self.musicas=list()
         self.botao_play()
+    def fundo(self):
+        fundo_img = customtkinter.CTkImage(Image.open("fundo.png"), size=(1000, 1000))
+        img=customtkinter.CTkLabel(master=self,text='',image=fundo_img)
+        img.place(x=0,y=0)    
     def player(self,musica):
         mixer.init()
         mixer.music.load(musica)
@@ -71,13 +76,13 @@ class App(customtkinter.CTk):
         if n1%2==0:
             self.pausar()
             button_image = customtkinter.CTkImage(Image.open("play1.png"), size=(30, 30)) 
-            image_button = customtkinter.CTkButton(master=self,anchor='center',image=button_image,width=10,height=10,corner_radius=50,text='',fg_color='#242424',command=self.botao_play)
+            image_button = customtkinter.CTkButton(master=self,anchor='center',image=button_image,width=10,height=10,text='',fg_color='#242424',command=self.botao_play,bg_color='#242424')
             self.n1+=1
             image_button.place(x=182,y=470)
         else:
             self.despausar()
             button_image = customtkinter.CTkImage(Image.open("pause.png"), size=(32, 32)) 
-            image_button = customtkinter.CTkButton(master=self,anchor='center',text="",image=button_image,width=10,height=10,corner_radius=50,fg_color='#242424',command=self.botao_play)
+            image_button = customtkinter.CTkButton(master=self,anchor='center',text="",image=button_image,width=10,height=10,corner_radius=50,fg_color='#242424',bg_color='#242424',command=self.botao_play)
             self.n1+=1
             image_button.place(x=182,y=470)
     def sei(self):
@@ -86,7 +91,7 @@ class App(customtkinter.CTk):
         hora=0
         minutos=0    
         #contador label
-        self.texto=ctk.CTkLabel(self,text='')
+        self.texto=ctk.CTkLabel(self,text='',bg_color='#242424',text_color='black')
         self.texto.place(x=50,y=450)
         #duraçao=titulo.info()[0]
         #autor=titulo.info()[1]
@@ -130,7 +135,7 @@ class App(customtkinter.CTk):
         segundos_total=self.duraçao
         minutos_total=0
         horas_total=0
-        self.total=ctk.CTkLabel(self,text='')
+        self.total=ctk.CTkLabel(self,text='',bg_color='#242424',text_color='black')
         self.total.place(x=300,y=450)
         if segundos_total==60:
             segundos_total=0
@@ -196,7 +201,7 @@ class App(customtkinter.CTk):
             caminhos=open('caminhos.txt','w+')
             #aqui tenho que colocar o negocio de abrir o diretorio
         for c in caminhos.read():
-            
+            print()
 app=App()
 app.mainloop()
 
