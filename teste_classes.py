@@ -32,7 +32,8 @@ class App(customtkinter.CTk):
         self.botao_play()
     def fundo(self):
         fundo_img = customtkinter.CTkImage(Image.open("fundo.png"), size=(1000, 1000))
-        img=customtkinter.CTkLabel(master=self,text='',image=fundo_img)
+        img=customtkinter.CTkLabel(master=self,text='',
+                                   image=fundo_img)
         img.place(x=0,y=0)    
     def player(self,musica):
         mixer.init()
@@ -49,22 +50,41 @@ class App(customtkinter.CTk):
             capa_musica= customtkinter.CTkImage(Image.open('capa_padrao.jpeg'), size=(300,300))
         else:
             capa_musica= customtkinter.CTkImage(Image.open('imagem.jpg'), size=(300,300))
-        self.capa=ctk.CTkLabel(master=self,image=capa_musica,text='',width=10,height=10,anchor='center')
+        self.capa=ctk.CTkLabel(master=self,
+                               image=capa_musica,
+                               text='',
+                               width=10,
+                               height=10,
+                               anchor='center')
         self.capa.place(x=45,y=50) 
     def botao(self):
         #botao anterior
         botao_a = customtkinter.CTkImage(Image.open("anterior.png"), size=(41, 28))
-        botao_anterior=ctk.CTkButton(self,image=botao_a,width=10,height=10,text='',fg_color='#242424',bg_color='#242424')
+        botao_anterior=ctk.CTkButton(self,image=botao_a,
+                                    width=10,
+                                    height=10,
+                                    text='',
+                                    fg_color='#242424',
+                                    bg_color='#242424')
         botao_anterior.place(x=114,y=470)
         #botao proximo
         botao_p = customtkinter.CTkImage(Image.open("proximo.png"), size=(41,28))
-        botao_proximo=ctk.CTkButton(self,text='',image=botao_p,width=10,height=10,fg_color='#242424',bg_color='#242424')
+        botao_proximo=ctk.CTkButton(self,text='',
+                                    image=botao_p,
+                                    width=10,
+                                    height=10,
+                                    fg_color='#242424',
+                                    bg_color='#242424')
         botao_proximo.place(x=231,y=470)       
     def update_barra(self):
         #infomaçoes da barra
         progresso=customtkinter.IntVar()
         duraçao=titulo.info()[0]
-        barra=customtkinter.CTkSlider(self,from_=0,to=duraçao,width=360,variable=progresso,border_color='#242424',)
+        barra=customtkinter.CTkSlider(self,from_=0,
+                                    to=duraçao,
+                                    width=360,
+                                    variable=progresso,
+                                    border_color='#242424',)
         #mixer.music.set_pos(progresso.get())
         barra.place(x=20,y=440)
         #atualizaçao do progresso
@@ -76,13 +96,30 @@ class App(customtkinter.CTk):
         if n1%2==0:
             self.pausar()
             button_image = customtkinter.CTkImage(Image.open("play1.png"), size=(30, 30)) 
-            image_button = customtkinter.CTkButton(master=self,anchor='center',image=button_image,width=10,height=10,text='',fg_color='#242424',command=self.botao_play,bg_color='#242424')
+            image_button = customtkinter.CTkButton(master=self,
+                                                anchor='center',
+                                                image=button_image,
+                                                width=10,
+                                                height=10,
+                                                text='',
+                                                fg_color='#242424',
+                                                command=self.botao_play,
+                                                bg_color='#242424')
             self.n1+=1
             image_button.place(x=182,y=470)
         else:
             self.despausar()
             button_image = customtkinter.CTkImage(Image.open("pause.png"), size=(32, 32)) 
-            image_button = customtkinter.CTkButton(master=self,anchor='center',text="",image=button_image,width=10,height=10,corner_radius=50,fg_color='#242424',bg_color='#242424',command=self.botao_play)
+            image_button = customtkinter.CTkButton(master=self,
+                                                anchor='center',
+                                                text="",
+                                                image=button_image,
+                                                width=10,
+                                                height=10,
+                                                corner_radius=50,
+                                                fg_color='#242424',
+                                                bg_color='#242424',
+                                                command=self.botao_play)
             self.n1+=1
             image_button.place(x=182,y=470)
     def sei(self):
