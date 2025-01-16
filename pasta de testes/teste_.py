@@ -48,17 +48,3 @@ while True:
 
 
 
-
-        try:
-            if len(self.musica_anterior)!=0: #and len(anterior)!=0:
-                self.musica_proxima.append(self.musica_atual)
-            self.musica_atual=self.musica_anterior.pop()
-            pygame.mixer.music.load(self.musica_atual)
-            pygame.mixer.music.play()
-            
-        except IndexError:
-            print('sem musica')   
-            print('='*50) 
-            print(self.musica_proxima)
-            print('='*50)
-            print(self.musica_atual)            

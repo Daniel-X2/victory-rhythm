@@ -14,7 +14,6 @@ class App(customtkinter.CTk):
         super().__init__()
         mixer.init()
         self.musica_atual='kendrik.mp3'
-        #acho necessario um verificador pra os arquivos no diretorio
         self.geometry('400x600')
         self.fundo()
         self.title('ola')
@@ -35,7 +34,8 @@ class App(customtkinter.CTk):
         self.musica_proxima=list(self.caminhos.copy())
         self.player(self.musica_atual)
     def fundo(self):
-        fundo_img = customtkinter.CTkImage(Image.open("fundo.png"), size=(1000, 1000))
+        fundo_img = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projeto 1/imagens/fundo.png"),
+                                                        size=(1000, 1000))
         img=customtkinter.CTkLabel(master=self,text='',
                                     image=fundo_img)
         img.place(x=0,y=0)    
@@ -63,7 +63,8 @@ class App(customtkinter.CTk):
         self.capa.place(x=45,y=50) 
     def botao(self):
         #botao anterior
-        botao_a = customtkinter.CTkImage(Image.open("anterior.png"), size=(41, 28))
+        botao_a = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projeto 1/imagens/anterior.png"),
+                                                    size=(41, 28))
         botao_anterior=ctk.CTkButton(self,image=botao_a,
                                     width=10,
                                     height=10,
@@ -73,7 +74,8 @@ class App(customtkinter.CTk):
                                     command=self.anterior)
         botao_anterior.place(x=114,y=470)
         #botao proximo
-        botao_p = customtkinter.CTkImage(Image.open("proximo.png"), size=(41,28))
+        botao_p = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projeto 1/imagens/proximo.png"),
+                                                    size=(41,28))
         botao_proximo=ctk.CTkButton(self,text='',
                                     image=botao_p,
                                     width=10,
@@ -102,7 +104,7 @@ class App(customtkinter.CTk):
         global image_button
         if n1%2==0:
             self.pausar()
-            button_image = customtkinter.CTkImage(Image.open("play1.png"), size=(30, 30)) 
+            button_image = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projeto 1/imagens/play1.png"), size=(30, 30)) 
             image_button = customtkinter.CTkButton(master=self,
                                                 anchor='center',
                                                 image=button_image,
@@ -116,7 +118,7 @@ class App(customtkinter.CTk):
             image_button.place(x=182,y=470)
         else:
             self.despausar()
-            button_image = customtkinter.CTkImage(Image.open("pause.png"), size=(32, 32)) 
+            button_image = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projeto 1/imagens/pause.png"), size=(32, 32)) 
             image_button = customtkinter.CTkButton(master=self,
                                                 anchor='center',
                                                 text="",
