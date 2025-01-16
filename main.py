@@ -100,14 +100,14 @@ class App(customtkinter.CTk):
     def botao_play(self):# aqui funciona pela metade
         n1=self.n1
         #corrigir bug
-        global button_image
-        global image_button
+        #global button_image
+        #global image_button
         if n1%2==0:
             self.pausar()
-            button_image = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projeto 1/imagens/play1.png"), size=(30, 30)) 
-            image_button = customtkinter.CTkButton(master=self,
+            self.button_image = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projeto 1/imagens/play1.png"), size=(30, 30)) 
+            self.image_button = customtkinter.CTkButton(master=self,
                                                 anchor='center',
-                                                image=button_image,
+                                                image=self.button_image,
                                                 width=10,
                                                 height=10,
                                                 text='',
@@ -115,10 +115,10 @@ class App(customtkinter.CTk):
                                                 command=self.botao_play,
                                                 bg_color='#242424')
             self.n1+=1
-            image_button.place(x=182,y=470)
+            self.image_button.place(x=182,y=470)
         else:
             self.despausar()
-            button_image = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projeto 1/imagens/pause.png"), size=(32, 32)) 
+            button_image = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projeto 1/imagens/pause.png"), size=(32, 32))
             image_button = customtkinter.CTkButton(master=self,
                                                 anchor='center',
                                                 text="",
@@ -126,9 +126,9 @@ class App(customtkinter.CTk):
                                                 width=10,
                                                 height=10,
                                                 corner_radius=50,
-                                                fg_color='#242424',
                                                 bg_color='#242424',
                                                 command=self.botao_play)
+    
             self.n1+=1
             image_button.place(x=182,y=470)
     def sei(self):
@@ -248,7 +248,10 @@ class App(customtkinter.CTk):
             self.musica_atual=self.musica_proxima.pop()    
             pygame.mixer.music.load(self.musica_atual)
             pygame.mixer.music.play()
-            
+            if self.n1%2==0:
+                pass
+            else:
+                self.botao_play()    
         except IndexError:
             print('sem musica')
             print('='*50)
@@ -263,7 +266,10 @@ class App(customtkinter.CTk):
             self.musica_atual=self.musica_anterior.pop()
             pygame.mixer.music.load(self.musica_atual)
             pygame.mixer.music.play()
-            
+            if self.n1%2==0:
+                pass
+            else:
+                self.botao_play()   
         except IndexError:
             print('sem musica')   
             print('='*50) 
