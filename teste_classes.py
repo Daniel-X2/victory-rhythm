@@ -13,27 +13,31 @@ class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         mixer.init()
-        self.proximo=list()
         self.musica_atual='kendrik.mp3'
-    #acho necessario um verificador pra os arquivos no diretorio
+        #acho necessario um verificador pra os arquivos no diretorio
         self.geometry('400x600')
         self.fundo()
+        self.title('ola')
         self.resizable(width=False,height=False)   #aqui evita que a tela seja redimesionada
-        self.capa_musica()
+        #self.capa_musica()
         self.botao()
         #self.update_barra()
-        self.n1=1
+        self.n1=1#aqui ativa o botao play
         self.sei()
-        self.player('kendrik.mp3')
-        self.musicas_anterior=list()
+        self.caminhos=[ '/home/danields/Desktop/projeto 1/musicas/musica1.mp3',
+                        '/home/danields/Desktop/projeto 1/musicas/musica2.mp3',
+                        '/home/danields/Desktop/projeto 1/musicas/musica3.mp3',
+                        '/home/danields/Desktop/projeto 1/musicas/musica4.mp3']
         self.update_total()
         self.update_label()
-        self.musicas=list()
         self.botao_play()
+        self.musica_anterior=list()
+        self.musica_proxima=list(self.caminhos.copy())
+        self.player(self.musica_atual)
     def fundo(self):
         fundo_img = customtkinter.CTkImage(Image.open("fundo.png"), size=(1000, 1000))
         img=customtkinter.CTkLabel(master=self,text='',
-                                   image=fundo_img)
+                                    image=fundo_img)
         img.place(x=0,y=0)    
     def player(self,musica):
         mixer.init()
@@ -65,7 +69,8 @@ class App(customtkinter.CTk):
                                     height=10,
                                     text='',
                                     fg_color='#242424',
-                                    bg_color='#242424')
+                                    bg_color='#242424',
+                                    command=self.anterior)
         botao_anterior.place(x=114,y=470)
         #botao proximo
         botao_p = customtkinter.CTkImage(Image.open("proximo.png"), size=(41,28))
@@ -74,7 +79,8 @@ class App(customtkinter.CTk):
                                     width=10,
                                     height=10,
                                     fg_color='#242424',
-                                    bg_color='#242424')
+                                    bg_color='#242424',
+                                    command=self.proximo)
         botao_proximo.place(x=231,y=470)       
     def update_barra(self):
         #infomaçoes da barra
@@ -89,8 +95,9 @@ class App(customtkinter.CTk):
         barra.place(x=20,y=440)
         #atualizaçao do progresso
         barra.after(1000,self.update_barra) # chama este método novamente em 1.000 milissegundos
-    def botao_play(self):
+    def botao_play(self):# aqui funciona pela metade
         n1=self.n1
+        #corrigir bug
         global button_image
         global image_button
         if n1%2==0:
@@ -231,14 +238,39 @@ class App(customtkinter.CTk):
         mixer.music.unload()   
     def reiniciar_musica():
         mixer.music.rewind()    
-    def caminhos(self):
+
+    def proximo(self):
+        try:    
+            if len(self.musica_proxima)!=0:# and len(proxima)!=1:
+                self.musica_anterior.append(self.musica_atual)
+            self.musica_atual=self.musica_proxima.pop()    
+            pygame.mixer.music.load(self.musica_atual)
+            pygame.mixer.music.play()
+            
+        except IndexError:
+            print('sem musica')
+            print('='*50)
+            print(self.musica_anterior)
+            print('='*50)
+            print(self.musica_atual)
+            
+    def anterior(self):
         try:
-            caminhos=open('caminhos.txt','r+')
-        except FileNotFoundError:
-            caminhos=open('caminhos.txt','w+')
-            #aqui tenho que colocar o negocio de abrir o diretorio
-        for c in caminhos.read():
-            print()
+            if len(self.musica_anterior)!=0: #and len(anterior)!=0:
+                self.musica_proxima.append(self.musica_atual)
+            self.musica_atual=self.musica_anterior.pop()
+            pygame.mixer.music.load(self.musica_atual)
+            pygame.mixer.music.play()
+            
+        except IndexError:
+            print('sem musica')   
+            print('='*50) 
+            print(self.musica_proxima)
+            print('='*50)
+            print(self.musica_atual)            
+            
+            
+            
 app=App()
 app.mainloop()
 
