@@ -9,10 +9,14 @@ import pygame
 from capas import titulo
 from time import sleep
 from customtkinter import filedialog
+
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         mixer.init()
+        self.segundos=self.minutos=self.hora=0
+        self.image_button=customtkinter.CTkButton(master=self,text='')
+        self.image_button.place(x=182,y=470)
         self.musica_atual='kendrik.mp3'
         self.geometry('400x600')
         self.fundo()
@@ -33,6 +37,7 @@ class App(customtkinter.CTk):
         self.musica_anterior=list()
         self.musica_proxima=list(self.caminhos.copy())
         self.player(self.musica_atual)
+        
     def fundo(self):
         fundo_img = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projeto 1/imagens/fundo.png"),
                                                         size=(1000, 1000))
@@ -84,7 +89,7 @@ class App(customtkinter.CTk):
                                     bg_color='#242424',
                                     command=self.proximo)
         botao_proximo.place(x=231,y=470)       
-    def update_barra(self):
+    def update_barra(self):# aqui falta fazer funcionar de forma normal
         #infomaçoes da barra
         progresso=customtkinter.IntVar()
         duraçao=titulo.info()[0]
@@ -97,11 +102,10 @@ class App(customtkinter.CTk):
         barra.place(x=20,y=440)
         #atualizaçao do progresso
         barra.after(1000,self.update_barra) # chama este método novamente em 1.000 milissegundos
-    def botao_play(self):# aqui funciona pela metade
+    def botao_play(self):# aqui esta ok 
         n1=self.n1
-        #corrigir bug
-        #global button_image
-        #global image_button
+        
+        self.image_button.destroy()
         if n1%2==0:
             self.pausar()
             self.button_image = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projeto 1/imagens/play1.png"), size=(30, 30)) 
@@ -114,63 +118,67 @@ class App(customtkinter.CTk):
                                                 fg_color='#242424',
                                                 command=self.botao_play,
                                                 bg_color='#242424')
+            
             self.n1+=1
+            
             self.image_button.place(x=182,y=470)
+            
         else:
             self.despausar()
-            button_image = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projeto 1/imagens/pause.png"), size=(32, 32))
-            image_button = customtkinter.CTkButton(master=self,
+            self.button_image = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projeto 1/imagens/pause.png"), size=(32, 32))
+            self.image_button = customtkinter.CTkButton(master=self,
                                                 anchor='center',
                                                 text="",
-                                                image=button_image,
+                                                image=self.button_image,
                                                 width=10,
                                                 height=10,
                                                 corner_radius=50,
                                                 bg_color='#242424',
                                                 command=self.botao_play)
-    
+            
+            
             self.n1+=1
-            image_button.place(x=182,y=470)
-    def sei(self):
-        milisegundos=0
-        self.segundos=0
-        hora=0
-        minutos=0    
-        #contador label
+
+            self.image_button.place(x=182,y=470)
+            
+    def label(self):
         self.texto=ctk.CTkLabel(self,text='',bg_color='#242424',text_color='black')
         self.texto.place(x=50,y=450)
-        #duraçao=titulo.info()[0]
-        #autor=titulo.info()[1]
-        #duraçao atual da musica
-    def update_label(self,segundos=0,minutos=0,hora=0):
-        musica_label=self.musica_atual
-        if musica_label!=self.musica_atual:
-            self.update_label()
-        if mixer.music.get_busy():
-            self.segundos+=1
-        else:
-            pass
-        segundos=self.segundos
+    def update_label(self,segundos=0,hora=0,minutos=0):
+        #musica_label=self.musica_atual
+        #if musica_label!=self.musica_atual:
+          #  self.update_label()
+        #if mixer.music.get_busy():
+           # pass
+        self.segundos+=1
+        #else:
+        #    pass
+        if self.segundos==10:
+            self.segundos=0
+        #segundos=self.segundos
         #if True:
         #if mixer.music.get_busy():
             #segundos+=1
         #else:
             #pass
-        if segundos==60:
-            segundos=0
-            minutos+=1
-        elif segundos>60:
-            while segundos>60:
-                segundos-=60
-                minutos+=1 
-        if segundos<10 and minutos<10:
-            self.texto.configure(text = f'0{hora}:0{minutos}:0{segundos}')
-        elif segundos<10 and minutos>=10:
-            self.texto.configure(text = f'0{hora}:{minutos}:0{segundos}')
-        elif segundos>=10 and minutos<10:
-            self.texto.configure(text = f'0{hora}:0{minutos}:{segundos}')
-        elif segundos>=10 and minutos>=10:
-            self.texto.configure(text = f'0{hora}:{minutos}:{segundos}')
+        #segundos=self.segundo
+        if self.segundos==60:
+            self.segundos=0
+            self.minutos+=1
+        elif self.segundos>60:
+            while self.segundos>60:
+                self.segundos-=60
+                self.minutos+=1 
+        if self.segundos<00 and minutos<10:
+            self.texto.configure(text = f'0{self.hora}:0{self.minutos}:0{self.segundos}\r')
+            
+        elif self.segundos<10 and self.minutos>=10:
+            self.texto.configure(text = f'0{self.hora}:{self.minutos}:0{self.segundos}')
+        elif self.segundos>=10 and self.minutos<10:
+            self.texto.configure(text = f'0{self.hora}:0{self.minutos}:{self.segundos}')
+        elif self.segundos>=10 and self.minutos>=10:
+            self.texto.configure(text = f'0{self.hora}:{self.minutos}:{self.segundos}')
+        
         
         self.texto.after(1000,self.update_label) # chama este método novamente em 1.000 milissegundos    
     def update_total(self):
@@ -198,6 +206,7 @@ class App(customtkinter.CTk):
             self.total.configure(text = f'0{horas_total}:0{minutos_total}:{segundos_total}')
         elif segundos_total>=10 and minutos_total>=10:
             self.total.configure(text = f'0{horas_total}:{minutos_total}:{segundos_total}')
+        self.total.after(1000,self.update_total)    
     def pastas(self):
         
         try:
@@ -242,16 +251,24 @@ class App(customtkinter.CTk):
         mixer.music.rewind()    
 
     def proximo(self):
-        try:    
+        try:
+            self.tirar_musica() 
+            sleep(1)
             if len(self.musica_proxima)!=0:# and len(proxima)!=1:
                 self.musica_anterior.append(self.musica_atual)
+                
             self.musica_atual=self.musica_proxima.pop()    
             pygame.mixer.music.load(self.musica_atual)
             pygame.mixer.music.play()
             if self.n1%2==0:
                 pass
             else:
-                self.botao_play()    
+                self.botao_play()
+
+            self.duraçao=titulo.info(musica=self.musica_atual)[0]
+            self.segundos=self.minutos=0
+            
+            
         except IndexError:
             print('sem musica')
             print('='*50)
@@ -269,20 +286,21 @@ class App(customtkinter.CTk):
             if self.n1%2==0:
                 pass
             else:
-                self.botao_play()   
+                self.botao_play()  
+            self.duraçao=titulo.info(musica=self.musica_atual)[0]
+            self.segundos=self.minutos=self.hora=0
         except IndexError:
             print('sem musica')   
             print('='*50) 
             print(self.musica_proxima)
             print('='*50)
-            print(self.musica_atual)            
-            
-            
-            
+            print(self.musica_atual)  
+
+
 app=App()
 app.mainloop()
 
-#objetivo 1: tenho que ajeitar a questao de proximas musicas e musicas anterior
+
 #2: dar a opçao de baixar as capas onlline 
 #3 deixar automatico a mudança do titulo e das ccapas
 #4 colocar volume
