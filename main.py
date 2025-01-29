@@ -73,13 +73,14 @@ class App(customtkinter.CTk):
         self.teste()
         self.backgroud()
         self.caminhos=[ 'kendrik.mp3','/home/danields/Desktop/projetos/player_musica/musicas/musica1.mp3']
+        self.variavel_do_total()
         self.update_total()
         self.update_label()
         self.botao_play()
         self.musica_anterior=list()
         self.musica_proxima=list(self.caminhos.copy())
         self.player(self.musica_atual)
-
+        self.update_barra()
 
         self.botao_janela()
     def backgroud(self):
@@ -123,16 +124,15 @@ class App(customtkinter.CTk):
     def update_barra(self):# aqui falta fazer funcionar de forma normal
         #infomaçoes da barra
         progresso=customtkinter.IntVar()
-        duraçao=titulo.info()[0]
+        duraçao=titulo.info(self.musica_atual)[0]
         barra=customtkinter.CTkSlider(self,from_=0,
                                     to=duraçao,
                                     width=360,
                                     variable=progresso,
-                                    border_color='#242424',)
-        #mixer.music.set_pos(progresso.get())
-        barra.place(x=20,y=440)
+                                    border_color='#242424',fg_color='#242424',bg_color='#242424')
+        barra.place(x=20,y=430)
         #atualizaçao do progresso
-        barra.after(1000,self.update_barra) # chama este método novamente em 1.000 milissegundos
+        #barra.after(1000,self.update_barra) # chama este método novamente em 1.000 milissegundos
     def botao_play(self):# aqui esta ok 
         n1=self.n1
         
@@ -205,17 +205,17 @@ class App(customtkinter.CTk):
             self.texto.configure(text = f'0{self.hora}:{self.minutos}:{self.segundos}')
         
         
-        self.texto.after(1000,self.update_label) # chama este método novamente em 1.000 milissegundos    
+        self.texto.after(1000,self.update_label) # chama este método novamente em 1.000 milissegundos  
+    def variavel_do_total(self):
+        self.total=ctk.CTkLabel(self,text='',bg_color='#242424',text_color='black')
+        self.total.place(x=300,y=450)
     def update_total(self):#aqui esta tudo ok
         #duraçao total da musica
-        
         self.duraçao=titulo.info(musica=self.musica_atual)[0]
-        
         segundos_total=self.duraçao
         minutos_total=0
         horas_total=0
-        self.total=ctk.CTkLabel(self,text='',bg_color='#242424',text_color='black')
-        self.total.place(x=300,y=450)
+        
         if segundos_total==60:
             segundos_total=0
             minutos_total+=1
@@ -231,7 +231,7 @@ class App(customtkinter.CTk):
             self.total.configure(text = f'0{horas_total}:0{minutos_total}:{segundos_total}')
         elif segundos_total>=10 and minutos_total>=10:
             self.total.configure(text = f'0{horas_total}:{minutos_total}:{segundos_total}')
-        self.total.after(1000,self.update_total)    
+        #self.total.after(1000,self.update_total)    
     def pastas(self):
         
         try:
@@ -288,11 +288,13 @@ class App(customtkinter.CTk):
                 pass
             else:
                 self.botao_play()
-
+            self.update_total()
             self.duraçao=titulo.info(musica=self.musica_atual)[0]
+            #aqui serve pra atualizar a capa das musicas
             self.back=customtkinter.CTkImage(titulo.capa(self.musica_atual),size=(300,300)) 
             self.imagem_fundo=customtkinter.CTkLabel(self,text='',image=self.back)
             self.imagem_fundo.place_configure(x=50,y=50)
+            #aqui reseta os segundos e os minutos do update label
             self.segundos=self.minutos=0
             
             
@@ -302,8 +304,7 @@ class App(customtkinter.CTk):
             print('='*50)
             print(self.musica_anterior)
             print('='*50)
-            print(self.musica_atual)
-            
+            print(self.musica_atual)        
     def anterior(self):
         try:
             if len(self.musica_anterior)!=0: #and len(anterior)!=0:
@@ -315,10 +316,13 @@ class App(customtkinter.CTk):
                 pass
             else:
                 self.botao_play()  
+            self.update_total()    
             self.duraçao=titulo.info(musica=self.musica_atual)[0]
+            #pega a nova capa e coloca
             self.back=customtkinter.CTkImage(titulo.capa(self.musica_atual),size=(300,300)) 
             self.imagem_fundo=customtkinter.CTkLabel(self,text='',image=self.back)
             self.imagem_fundo.place_configure(x=50,y=50)
+            #reseta os segundos 
             self.segundos=self.minutos=self.hora=0
         except IndexError:
             print('sem musica')   
