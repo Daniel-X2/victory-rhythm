@@ -41,7 +41,7 @@ while True:
             print(anterior)
             print('='*50)
             print(musica_atual)
-
+print()
 
 
 
