@@ -8,19 +8,30 @@ from capas import titulo
 from time import sleep
 from customtkinter import filedialog
 import tkinter
-
+class musica_window(customtkinter.CTkToplevel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.geometry("550x350")
+        self.config(background='#242424')
+        self.resizable(width=False,height=False)
+        self.title('musicas')
+    def teste(self):
+        n1=open('caminho.txt','r')
+        for c in n1.read():
+            
 class ToplevelWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.geometry("550x450")
+        self.geometry("550x350")
         self.config(background='#242424')
-        
+        self.resizable(width=False,height=False)
         self.tabview()
+        self.title('configuraçao')
     def tabview(self):
         tabview = customtkinter.CTkTabview(master=self,
                                             anchor='nw',
                                             fg_color='#242424',
-                                            width=500,height=430,
+                                            width=500,height=330,
                                             border_width=2,
                                             border_color='gray',
                                             segmented_button_selected_color='#242424',
@@ -28,19 +39,38 @@ class ToplevelWindow(customtkinter.CTkToplevel):
                                             segmented_button_fg_color='#242424',
                                             #segmented_button_unselected_color='black',
                                             segmented_button_unselected_hover_color='black',#cor de quando passa o mouse
-                                            corner_radius=50)
+                                            corner_radius=10)
         tabview.place(x=25,y=10)
-    
         tabview.add("geral")  # add tab at the end
         tabview.add("sobre")  # add tab at the end
         tabview.set("geral")  # set currently visible tab
 
+        def optionmenu_callback(choice):
+            print("optionmenu dropdown clicked:", choice)
+
+        optionmenu = customtkinter.CTkOptionMenu(master=tabview.tab('geral'), values=["option 1", "option 2"],
+                                         command=optionmenu_callback)
+        optionmenu.set("option 2")
+        optionmenu.place(x=10,y=10)
+
+
+        
+
+        frame1=customtkinter.CTkFrame(master=tabview.tab('geral'),corner_radius=15,width=200,height=200,border_color='black',border_width=2,fg_color='#242424')
+        #frame1.place(x=10,y=20)
+        frame2=customtkinter.CTkFrame(master=tabview.tab('geral'),corner_radius=15,width=200,height=200,border_color='black',border_width=2,fg_color='#242424')
+        #frame2.place(x=270,y=20)
 
 
         switch_var = customtkinter.StringVar(value="on")
         switch = customtkinter.CTkSwitch(master=tabview.tab('geral'), text="capas online",
                                 variable=switch_var, onvalue="on", offvalue="off",bg_color='black')
-        switch.place(x=10,y=10)
+        #switch.place(x=10,y=40)
+
+
+        self.textbox = customtkinter.CTkTextbox(master=tabview.tab('sobre'), width=400, corner_radius=0)
+        self.textbox.grid(row=0, column=0, sticky="nsew")
+        self.textbox.insert("0.0", "Some example text!\n" * 50)
         #tab_1 = tabview.add("tab 3")
         #tab_2 = tabview.add("tab 4")
 
@@ -57,6 +87,9 @@ class App(customtkinter.CTk):
         self.resizable(width=False,height=False)   #aqui evita que a tela seja redimesionada
         self.variaveis_funçoes()
         self.funçoes_iniciais()
+        self.subtitulo()
+        
+
         
     def funçoes_iniciais(self):
         self.botao() 
@@ -283,6 +316,9 @@ class App(customtkinter.CTk):
             self.progresso.set(0)
             self.barra.configure(variable=self.progresso,to=self.duraçao)
             
+
+            self.autor=titulo.info(self.musica_atual)[2]
+            self.sub_titulo.configure(text=self.autor)
         except IndexError:
             print('sem musica')
             print('='*50)
@@ -301,7 +337,7 @@ class App(customtkinter.CTk):
             else:
                 self.botao_play()  
             self.update_total()    
-        
+
             #pega a nova capa e coloca
             self.back=customtkinter.CTkImage(titulo.capa(self.musica_atual),size=(300,300)) 
             self.imagem_fundo=customtkinter.CTkLabel(self,text='',image=self.back)
@@ -315,6 +351,10 @@ class App(customtkinter.CTk):
             self.duraçao=titulo.info(musica=self.musica_atual)[0]
             self.progresso.set(0)
             self.barra.configure(to=self.duraçao,variable=self.progresso)
+
+
+            self.autor=titulo.info(self.musica_atual)[2]
+            self.sub_titulo.configure(text=self.autor)
         except IndexError:
             print('sem musica')   
             print('='*50) 
@@ -327,12 +367,28 @@ class App(customtkinter.CTk):
         else:
             self.toplevel_window.focus()  # if window exists focus it
     def botao_janela(self):  
-        imagem=customtkinter.CTkImage(Image.open('/home/danields/Desktop/projetos/player_musica/imagens/ponto.png'), size=(30,30))
-        self.button_1 = customtkinter.CTkButton(self, text="", command=self.open_toplevel,width=15,height=15,image=imagem,fg_color='#242424',bg_color='#242424')
-        self.button_1.place( x=360, y=10)
+        #imagem=customtkinter.CTkImage(Image.open('/home/danields/Desktop/projetos/player_musica/imagens/ponto.png'), size=(30,30))
+        #self.button_1 = customtkinter.CTkButton(self, text="", command=self.open_toplevel,width=15,height=15,image=imagem,fg_color='#242424',bg_color='#242424')
+        #self.button_1.place( x=360, y=10)
+        self.musica_window= None
+        self.toplevel_window = None 
+        def optionmenu_callback(opcoes):
+            if opcoes=='Opçoes':
+                pass
+            elif opcoes=='Musicas':
+                self.musicas()
+            else:
+                self.open_toplevel()   
+        optionmenu = customtkinter.CTkOptionMenu(master=self, values=["Opçoes","Musicas","Geral"],width=50,
+                                            command=optionmenu_callback,)
+        optionmenu.set("opçoes")
+        optionmenu.place(x=320,y=10)
 
-        self.toplevel_window = None  
-
+    def musicas(self):
+        if self.musica_window is None or not self.musica_window.winfo_exists():
+            self.musica_window = musica_window(self)  # create window if its None or destroyed
+        else:
+            self.musica_window.focus()  # if window exists focus it
     def update_barra(self):# aqui falta fazer funcionar de forma normal
         #infomaçoes da barra
         self.vari=self.progresso.get()
@@ -353,9 +409,10 @@ class App(customtkinter.CTk):
         self.progresso.set(self.progresso.get())
         if mixer.music.get_busy():
             mixer.music.set_pos(self.progresso.get())
-        
-    
-
+    def subtitulo(self):
+        self.autor=titulo.info(self.musica_atual)[2]
+        self.sub_titulo=customtkinter.CTkLabel(self,text=self.autor)
+        self.sub_titulo.place(x=140,y=400)
 app=App()
 app.mainloop()
 

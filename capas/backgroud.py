@@ -1,4 +1,5 @@
 import asyncio
+import shutil
 from shazamio import Shazam
 import wget
 import os.path
@@ -22,15 +23,22 @@ def capa(musica):
         return 0    
     def download_image(url, save_as):
         wget.download(url, save_as)
-
+        shutil.move(src=save_as,dst='.capas')
     image_url = n1
-    save_as = 'imagem.jpg'
+    save_as = musica+'.png'
     try:
         if os.path.exists(save_as):
-            os.remove(save_as)
-            download_image(image_url, save_as)
-
+            #os.remove(save_as)
+            #download_image(image_url, save_as)
+            pass
         else:
             download_image(image_url, save_as)
+        if os.path.exists('.capas'):
+            return
+        else:
+            os.makedirs('.capas')
     except:
         return 0
+#capa('musicas/musica1.mp3')
+print(os.walk('musicas'))
+
