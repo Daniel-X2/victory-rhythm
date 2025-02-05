@@ -40,5 +40,6 @@ def capa(musica):
     except:
         return 0
 #capa('musicas/musica1.mp3')
-print(os.walk('musicas'))
+#print(os.walk('musicas'))
 
+print(os.listdir('musicas'))

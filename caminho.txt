@@ -1,2 +1,5 @@
 musicas/musica1.mp3
 musicas/musica2.mp3
+musicas/musica3.mp3
+musicas/musica4.mp3
+/home/danields/Desktop/projetos/player_musica/kendrik.mp3
