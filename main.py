@@ -1,4 +1,4 @@
-from email.mime import image
+
 import customtkinter as ctk 
 import customtkinter 
 from PIL import Image,ImageTk
@@ -17,7 +17,7 @@ class MyFrame(customtkinter.CTkScrollableFrame):
         self.label = customtkinter.CTkLabel(self,text='',height=69)
         self.label.grid(row=0, column=0, padx=20)
         self.n4=40
-        
+        self.meuovo=0
         self.teste()
         tamanho=69*len(self.n2)
         self.label.configure(height=tamanho)
@@ -113,7 +113,6 @@ acessar meu github ''')
         botao_git.place(x=400,y=230)
 class App(customtkinter.CTk):
     def __init__(self):
-
         super().__init__()
         mixer.init()
         mixer.music.set_volume(0)
@@ -135,6 +134,7 @@ class App(customtkinter.CTk):
         self.botao_play()
         self.player(self.musica_atual)
         self.botao_janela()
+        self.volume()
     def variaveis_funçoes(self):
         self.segundos=self.minutos=self.hora=0
         self.image_button=customtkinter.CTkButton(master=self,text='')
@@ -148,6 +148,15 @@ class App(customtkinter.CTk):
         self.musica_proxima=list(self.caminhos.copy())
         self.titulo_atual=titulo.info(self.musica_atual)[1]
         self.title(self.titulo_atual)
+        
+        self.variavel_volume=customtkinter.DoubleVar(value=0.55)
+        self.barra_volume=customtkinter.CTkSlider(self,from_=0,
+                                        to=1,
+                                    width=100,
+                                    border_color='#242424',
+                                    bg_color='#242424',variable=self.variavel_volume,
+                                    )
+        self.barra_volume.place(x=20,y=20)
     def backgroud(self):
         self.back=customtkinter.CTkImage(titulo.capa(self.musica_atual),size=(300,300)) 
         self.imagem_fundo=customtkinter.CTkLabel(self,text='',image=self.back)
@@ -439,6 +448,15 @@ class App(customtkinter.CTk):
                                     bg_color='#242424'
                                     ,command=lambda n1:self.progresso_atual())
         self.barra.place(x=20,y=430)
+    def volume(self):
+        self.barra=customtkinter.CTkSlider(self,from_=0,
+                                    to=1.0,
+                                    width=360,
+                                    variable=self.progresso,
+                                    border_color='#242424',
+                                    bg_color='#242424'
+                                    ,)
+        self.barra.place(x=20,y=430)    
     def progresso_atual(self):
         self.progresso.set(self.progresso.get())
         if mixer.music.get_busy():
@@ -447,6 +465,10 @@ class App(customtkinter.CTk):
         self.autor=titulo.info(self.musica_atual)[2]
         self.sub_titulo=customtkinter.CTkLabel(self,text=self.autor,font=customtkinter.CTkFont(size=15),fg_color='#242424',text_color='black',width=400)
         self.sub_titulo.place(x=20,y=400)
+    def volume(self):
+        print(self.variavel_volume.get())
+        mixer.music.set_volume(self.variavel_volume.get())
+        self.after(1000,self.volume)
 app=App()
 app.mainloop()
 
