@@ -1,4 +1,4 @@
-
+import os.path
 import customtkinter as ctk 
 import customtkinter 
 from PIL import Image,ImageTk
@@ -25,22 +25,29 @@ class MyFrame(customtkinter.CTkScrollableFrame):
         if len(self.n2)>0:
             while len(self.n2)>0:
                 self.criar()
+                
     def teste(self):
-        n1=open('caminho.txt','r')
+        n1=open('caminhos.txt','r')
         self.n2=list()
         self.dici=dict()
+        
         for c in n1.readlines():
-            n1=c.replace('\n','')
-            n3=titulo.info(n1)[2]
+            self.n1=c.replace('\n','')
+            
+            n3=titulo.info(self.n1)[2]
+            
             self.n2.append(n3)
-            self.dici[n1]=n3
-        
-        print(self.dici)
+            self.dici[n3]=self.n1
+            
+
     def criar(self):
-        
-        n1=customtkinter.CTkButton(self,text=self.n2.pop(),width=400)
-        n1.place(x=-5,y=self.n4)
-        self.n4+=27
+        try:
+            nome_musica=self.n2.pop()
+            n1=customtkinter.CTkButton(self,text=nome_musica,width=400,command=lambda:(mixer.music.unload(),mixer.music.load(self.dici[nome_musica]),mixer.music.play()))
+            n1.place(x=-5,y=self.n4)
+            self.n4+=27
+        except:
+            return    
 class musica_window(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -52,7 +59,6 @@ class musica_window(customtkinter.CTkToplevel):
         self.resizable(width=False,height=False)
         self.config(background='#242424')         
         #self.title('Musicas')
-        
 class ToplevelWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -79,8 +85,7 @@ class ToplevelWindow(customtkinter.CTkToplevel):
         tabview.add("sobre")  # add tab at the end
         tabview.set("sobre")  # set currently visible tab
 
-        def optionmenu_callback(choice):
-            print("optionmenu dropdown clicked:", choice)
+        
 
         #optionmenu = customtkinter.CTkOptionMenu(master=tabview.tab('sobre'), values=["option 1", "option 2"],
         #                                command=optionmenu_callback)
@@ -114,6 +119,8 @@ acessar meu github ''')
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
+        caminho=open('caminhos.txt','r+')
+        
         mixer.init()
         mixer.music.set_volume(0)
         self.geometry('400x600')
@@ -163,7 +170,11 @@ class App(customtkinter.CTk):
         self.imagem_fundo.place(x=50,y=50)
     def player(self,musica):#tudo ok por aqui
         mixer.init()
-        mixer.music.load(musica)
+        try:
+            mixer.music.load(musica)
+        except:
+            self.proximo()
+            return    
         mixer.music.play()
         #mixer.music.set_endevent(self.proximo)
     def pausar(self):#tudo ok por aqui
@@ -240,7 +251,7 @@ class App(customtkinter.CTk):
             self.vari=self.progresso.get()
             self.vari+=1
             self.progresso.set(self.vari)
-            print(self.vari,self.segundos)
+            #print(self.vari,self.segundos)
         else:
             pass
         
@@ -288,44 +299,9 @@ class App(customtkinter.CTk):
         elif segundos_total>=10 and minutos_total>=10:
             self.total.configure(text = f'0{horas_total}:{minutos_total}:{segundos_total}')
         #self.total.after(1000,self.update_total)    
-    def pastas(self):
-        
-        try:
-            #aqui vai escrever o caminho da pasta que o usuario vai escolher
-            caminhos_musica=open('caminhos.txt','+a')
-            self.abrir_diretorio=filedialog.askdirectory('abra a pasta de suas musicas')
-            n3=self.n1[0]
-            caminhos_musica.writelines(n3)
-            caminhos_musica.close()
-            #aqui vai abrir o mesmo aquivo de texto mas mode leitura
-            caminhos_musica=open('caminhos.txt','+rb')
-            n1=set(caminhos_musica.readlines())# aqui vai evitar ter musica repetida
-            caminhos_musica=open('caminhos.txt','w+')
-            caminhos_musica.close()
-            caminhos_musica=open('caminhos.txt','+a')    
-            n3=0
-            for c in n1:
-                n3=bytes.decode(c)
-                caminhos_musica.write(n3)
-                caminhos_musica.close()   
-        except:
-            #aqui vai criar o arquivo caminhos.txt 
-            caminhos_musica=open('caminhos.txt','w+')
-            self.abrir_diretorio=filedialog.askdirectory('abra a pasta de suas musicas')
-            n3=self.n1[0]
-            caminhos_musica.writelines(n3)
-            caminhos_musica.close()
-            #aqui vai abrir o mesmo aquivo de texto mas mode leitura
-            caminhos_musica=open('caminhos.txt','+rb')
-            n1=set(caminhos_musica.readlines())# aqui vai evitar ter musica repetida
-            caminhos_musica=open('caminhos.txt','w+')
-            caminhos_musica.close()
-            caminhos_musica=open('caminhos.txt','+a')    
-            n3=0
-            for c in n1:
-                n3=bytes.decode(c)
-                caminhos_musica.write(n3)
-                caminhos_musica.close()   
+    def abrir_pastas(self):
+        self.abrir_diretorio=filedialog.askdirectory(title='abra a pasta de suas musicas')
+        self.variavel_do_verificador(self.abrir_diretorio)
     def tirar_musica(self):#tudo ok por aqui
         mixer.music.unload()   
     def reiniciar_musica():#tudo ok por aqui
@@ -365,9 +341,11 @@ class App(customtkinter.CTk):
         except IndexError:
             print('sem musica')
             print('='*50)
-            print(self.musica_anterior)
+           # print(self.musica_anterior)
             print('='*50)
-            print(self.musica_atual)        
+            #print(self.musica_atual) 
+        except:
+                self.proximo()
     def anterior(self):
         try:
             if len(self.musica_anterior)!=0: #and len(anterior)!=0:
@@ -401,9 +379,9 @@ class App(customtkinter.CTk):
         except IndexError:
             print('sem musica')   
             print('='*50) 
-            print(self.musica_proxima)
+            #print(self.musica_proxima)
             print('='*50)
-            print(self.musica_atual)  
+            #print(self.musica_atual)  
     def open_toplevel(self):
         if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
             self.toplevel_window = ToplevelWindow(self)  # create window if its None or destroyed
@@ -420,13 +398,14 @@ class App(customtkinter.CTk):
                 pass
             elif opcoes=='Musicas':
                 self.musicas()
+            elif 'Adicionar musica':
+                self.abrir_pastas()
             else:
                 self.open_toplevel()   
-        optionmenu = customtkinter.CTkOptionMenu(master=self, values=["Opçoes","Musicas","Geral"],width=50,
+        optionmenu = customtkinter.CTkOptionMenu(master=self, values=["Opçoes","Musicas",'Adicionar musica',"Geral"],width=50,
                                             command=optionmenu_callback,bg_color='#242424')
         optionmenu.set("opçoes")
         optionmenu.place(x=320,y=10)
-
     def musicas(self):
         if self.musica_window is None or not self.musica_window.winfo_exists():
             self.musica_window = musica_window(self)  # create window if its None or destroyed
@@ -438,7 +417,7 @@ class App(customtkinter.CTk):
         #print(self.progresso.get())
         self.vari+=1
         self.progresso.set(self.vari)
-        print(self.vari)
+        #print(self.vari)
         
         self.barra=customtkinter.CTkSlider(self,from_=0,
                                     to=self.duraçao,
@@ -466,9 +445,44 @@ class App(customtkinter.CTk):
         self.sub_titulo=customtkinter.CTkLabel(self,text=self.autor,font=customtkinter.CTkFont(size=15),fg_color='#242424',text_color='black',width=400)
         self.sub_titulo.place(x=20,y=400)
     def volume(self):
-        print(self.variavel_volume.get())
+        
         mixer.music.set_volume(self.variavel_volume.get())
         self.after(1000,self.volume)
+    def verificador(self):
+        for c in self.n1:
+            junçao=self.caminhos+'/'+c
+            if os.path.isfile(junçao):
+                self.arquivos.append(junçao)
+            elif os.path.isdir(junçao):
+                self.pastas.append(junçao)
+    def separador(self):
+        for c in self.arquivos:
+            if '.mp3' in c :
+                self.mp3.add(c)
+    def variavel_do_verificador(self,pasta):
+        self.caminhos=pasta
+        self.n1=os.listdir(self.caminhos)
+        self.arquivos=list()
+        self.pastas=list()
+        self.mp3=set()
+        self.arquivo_aleatorio=list()
+        self.verificador()
+        self.separador()
+        while len(self.pastas)>0:
+            self.caminhos=self.pastas.pop()
+            self.n1=os.listdir(self.caminhos)
+            self.verificador()
+            self.separador()
+        try:    
+            caminho=open('caminhos.txt','r+')
+        except FileNotFoundError:
+            caminho=open('caminhos.txt','w+')
+        finally:
+            for c in self.mp3:
+                caminho.writelines(c)
+                caminho.writelines('\n')
+            
+
 app=App()
 app.mainloop()
 

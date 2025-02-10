@@ -42,4 +42,4 @@ def capa(musica):
 #capa('musicas/musica1.mp3')
 #print(os.walk('musicas'))
 
-print(os.listdir('musicas'))
+#print(os.listdir('musicas'))
