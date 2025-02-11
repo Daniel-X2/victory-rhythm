@@ -1,4 +1,5 @@
 import os.path
+from re import I
 import customtkinter as ctk 
 import customtkinter 
 from PIL import Image,ImageTk
@@ -13,7 +14,7 @@ class MyFrame(customtkinter.CTkScrollableFrame):
     def __init__(self, master, **kwargs):# falta configurar os botoes de cada musica pra reproduzir
         super().__init__(master, **kwargs)
         # add widgets onto the frame...
-        
+        mixer.init()
         self.label = customtkinter.CTkLabel(self,text='',height=69)
         self.label.grid(row=0, column=0, padx=20)
         self.n4=40
@@ -43,9 +44,14 @@ class MyFrame(customtkinter.CTkScrollableFrame):
     def criar(self):
         try:
             nome_musica=self.n2.pop()
-            n1=customtkinter.CTkButton(self,text=nome_musica,width=400,command=lambda:(mixer.music.unload(),mixer.music.load(self.dici[nome_musica]),mixer.music.play()))
-            n1.place(x=-5,y=self.n4)
-            self.n4+=27
+            try:
+                mixer.music.load(self.dici[nome_musica])
+                n1=customtkinter.CTkButton(self,text=nome_musica,width=400,command=lambda:(mixer.music.unload(),mixer.music.load(self.dici[nome_musica]),mixer.music.play()))
+                n1.place(x=-5,y=self.n4)
+                self.n4+=27
+            except:
+                self.criar()
+            
         except:
             return    
 class musica_window(customtkinter.CTkToplevel):
@@ -77,36 +83,18 @@ class ToplevelWindow(customtkinter.CTkToplevel):
                                             segmented_button_selected_color='#242424',
                                             bg_color='#242424',
                                             segmented_button_fg_color='#242424',
-                                            #segmented_button_unselected_color='black',
+                                            
                                             segmented_button_unselected_hover_color='black',#cor de quando passa o mouse
                                             corner_radius=10)
         tabview.place(x=25,y=10)
-        #tabview.add("geral")  # add tab at the end
-        tabview.add("sobre")  # add tab at the end
-        tabview.set("sobre")  # set currently visible tab
+        tabview.add("sobre")  
+        tabview.set("sobre") 
 
         
 
-        #optionmenu = customtkinter.CTkOptionMenu(master=tabview.tab('sobre'), values=["option 1", "option 2"],
-        #                                command=optionmenu_callback)
-        #optionmenu.set("option 2")
-        #optionmenu.place(x=10,y=10)
-
-
-        
-
-        #frame1=customtkinter.CTkFrame(master=tabview.tab('geral'),corner_radius=15,width=200,height=200,border_color='black',border_width=2,fg_color='#242424')
-        #frame1.place(x=10,y=20)
-        #frame2=customtkinter.CTkFrame(master=tabview.tab('geral'),corner_radius=15,width=200,height=200,border_color='black',border_width=2,fg_color='#242424')
-        #frame2.place(x=270,y=20)
-
-
-        #switch_var = customtkinter.StringVar(value="on")
-        #switch = customtkinter.CTkSwitch(master=tabview.tab('geral'), text="capas online",
-           #                     variable=switch_var, onvalue="on", offvalue="off",bg_color='black')
-        #switch.place(x=10,y=40)
-
-
+        imagem_icone=customtkinter.CTkImage(Image.open('imagens/icone_app.png'),size=(100,100))
+        icone=customtkinter.CTkLabel(master=tabview.tab('sobre'),text='',image=imagem_icone)
+        icone.place(x=190,y=30)
         texto_sobre=customtkinter.CTkLabel(master=tabview.tab('sobre'),font=customtkinter.CTkFont(size=15),text_color='white',text='''ola, esse e o meu primeiro projeto com o customtkinter e python,
 espero que tenha gostado,se esse projeto te interesou
 e vc quiser aconpanhar esse projeto ou outros e so
@@ -119,8 +107,6 @@ acessar meu github ''')
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-        caminho=open('caminhos.txt','r+')
-        
         mixer.init()
         mixer.music.set_volume(0)
         self.geometry('400x600')
@@ -131,6 +117,7 @@ class App(customtkinter.CTk):
         self.funçoes_iniciais()
         self.subtitulo()
     def funçoes_iniciais(self):
+        
         self.botao() 
         self.label()
         self.backgroud()
@@ -150,11 +137,21 @@ class App(customtkinter.CTk):
         self.progresso=customtkinter.DoubleVar()
         self.vari=0
         self.n1=1#aqui ativa o botao play
-        self.caminhos=[ 'kendrik.mp3','/home/danields/Desktop/projetos/player_musica/musicas/musica1.mp3']
-        self.musica_anterior=list()
+        self.caminhos=list()
+        caminho=open('caminhos.txt','r+')
+        if caminho.readable():
+            for c in caminho.readlines():
+                
+                self.caminhos.append(c)
+                
+        else:
+            self.abrir_pastas()   
         self.musica_proxima=list(self.caminhos.copy())
-        self.titulo_atual=titulo.info(self.musica_atual)[1]
-        self.title(self.titulo_atual)
+        #print(self.musica_proxima)
+        self.musica_anterior=list()
+        
+        #self.titulo_atual=titulo.info(self.musica_atual)[1]
+        #self.title(self.titulo_atual)
         
         self.variavel_volume=customtkinter.DoubleVar(value=0.55)
         self.barra_volume=customtkinter.CTkSlider(self,from_=0,
@@ -222,7 +219,6 @@ class App(customtkinter.CTk):
                                                 bg_color='#242424')
             
             self.n1+=1
-            
             self.image_button.place(x=182,y=470)
             
         else:
@@ -238,9 +234,7 @@ class App(customtkinter.CTk):
                                                 bg_color='#242424',
                                                 command=self.botao_play)
             
-            
             self.n1+=1
-
             self.image_button.place(x=182,y=470)      
     def label(self):# aqui esta tudo ok
         self.texto=ctk.CTkLabel(self,text='',bg_color='#242424',text_color='black')
@@ -300,63 +294,91 @@ class App(customtkinter.CTk):
             self.total.configure(text = f'0{horas_total}:{minutos_total}:{segundos_total}')
         #self.total.after(1000,self.update_total)    
     def abrir_pastas(self):
-        self.abrir_diretorio=filedialog.askdirectory(title='abra a pasta de suas musicas')
-        self.variavel_do_verificador(self.abrir_diretorio)
+        try:
+            self.abrir_diretorio=filedialog.askdirectory(title='abra a pasta de suas musicas')
+            self.variavel_do_verificador(self.abrir_diretorio)
+        except:
+            print('erro nas pastas')    
     def tirar_musica(self):#tudo ok por aqui
         mixer.music.unload()   
     def reiniciar_musica():#tudo ok por aqui
         mixer.music.rewind()    
     def proximo(self):#tudo ok por aqui
+        if len(self.musica_proxima)>=1:
+            print(len(self.musica_proxima))
+            try:
+                if len(self.musica_proxima)!=0:
+                    self.musica_anterior.append(self.musica_atual)
+                    self.tirar_musica()
+                    self.musica_atual=str(self.musica_proxima.pop())
+                if '\n' in self.musica_atual:
+                    self.musica_atual=self.musica_atual.replace('\n','')
+                try:
+                    mixer.music.load(self.musica_atual)
+                    print(self.musica_atual)
+                    pygame.mixer.music.play()
+                except:
+                    print('erro no load ')
+                    self.proximo()
+                if self.n1%2==0:
+                    pass
+                else:
+                    self.botao_play()
+                self.update_total()
+               
+            #aqui serve pra atualizar a capa das musicas
+                self.back=customtkinter.CTkImage(titulo.capa(self.musica_atual),size=(300,300)) 
+                self.imagem_fundo=customtkinter.CTkLabel(self,text='',image=self.back)
+                self.imagem_fundo.place_configure(x=50,y=50)
+
+            #aqui reseta os segundos e os minutos do update label
+                self.segundos=self.minutos=0
+            #atualiza o titulo da janela
+                self.titulo_atual=titulo.info(self.musica_atual)[1]
+                self.title(self.titulo_atual)
+            #aqui atualiza a duraçao da barra 
+                self.duraçao=titulo.info(musica=self.musica_atual)[0]
+                self.progresso.set(0)
+                self.barra.configure(variable=self.progresso,to=self.duraçao)
+            
+
+                self.autor=titulo.info(self.musica_atual)[2]
+                self.sub_titulo.configure(text=self.autor)
+            except IndexError:
+                print('sem musica')
+                print('='*50)
+           # print(self.musica_anterior)
+                print('='*50)
+            #print(self.musica_atual)
+        else:
+            print('sem musica')    
+    def anterior(self):
         try:
-            self.tirar_musica() 
-            if len(self.musica_proxima)!=0:# and len(proxima)!=1:
-                self.musica_anterior.append(self.musica_atual)
-                
-            self.musica_atual=self.musica_proxima.pop()    
-            pygame.mixer.music.load(self.musica_atual)
-            pygame.mixer.music.play()
+            if len(self.musica_anterior)!=0:
+                self.musica_proxima.append(self.musica_atual)
+                self.tirar_musica()    
+                self.musica_atual=str(self.musica_anterior.pop())
+            if '\n' in self.musica_atual:
+                self.musica_atual=self.musica_atual.replace('\n','')
+            try:
+                mixer.music.load(self.musica_atual)
+                pygame.mixer.music.play()
+            except:
+                print('erro no load')
+                self.anterior()
             if self.n1%2==0:
                 pass
             else:
                 self.botao_play()
-            self.update_total()
-            #aqui serve pra atualizar a capa das musicas
-            self.back=customtkinter.CTkImage(titulo.capa(self.musica_atual),size=(300,300)) 
-            self.imagem_fundo=customtkinter.CTkLabel(self,text='',image=self.back)
-            self.imagem_fundo.place_configure(x=50,y=50)
 
-            #aqui reseta os segundos e os minutos do update label
-            self.segundos=self.minutos=0
-            #atualiza o titulo da janela
-            self.titulo_atual=titulo.info(self.musica_atual)[1]
-            self.title(self.titulo_atual)
-            #aqui atualiza a duraçao da barra 
-            self.duraçao=titulo.info(musica=self.musica_atual)[0]
-            self.progresso.set(0)
-            self.barra.configure(variable=self.progresso,to=self.duraçao)
-            
-
-            self.autor=titulo.info(self.musica_atual)[2]
-            self.sub_titulo.configure(text=self.autor)
-        except IndexError:
-            print('sem musica')
-            print('='*50)
-           # print(self.musica_anterior)
-            print('='*50)
-            #print(self.musica_atual) 
-        except:
-                self.proximo()
-    def anterior(self):
-        try:
-            if len(self.musica_anterior)!=0: #and len(anterior)!=0:
-                self.musica_proxima.append(self.musica_atual)
-            self.musica_atual=self.musica_anterior.pop()
-            pygame.mixer.music.load(self.musica_atual)
-            pygame.mixer.music.play()
-            if self.n1%2==0:
-                pass
-            else:
-                self.botao_play()  
+            #if len(self.musica_anterior)!=0: #and len(anterior)!=0:
+            #    self.musica_proxima.append(self.musica_atual)
+           # self.musica_atual=self.musica_anterior.pop()
+           # pygame.mixer.music.load(self.musica_atual)
+           # pygame.mixer.music.play()
+           # if self.n1%2==0:
+           ### else:
+           #     self.botao_play()  
             self.update_total()    
 
             #pega a nova capa e coloca
@@ -398,7 +420,7 @@ class App(customtkinter.CTk):
                 pass
             elif opcoes=='Musicas':
                 self.musicas()
-            elif 'Adicionar musica':
+            elif opcoes=='Adicionar musica':
                 self.abrir_pastas()
             else:
                 self.open_toplevel()   
@@ -481,8 +503,42 @@ class App(customtkinter.CTk):
             for c in self.mp3:
                 caminho.writelines(c)
                 caminho.writelines('\n')
-            
-
+        caminho.close()
+        self.impedir_duplicatas()  
+        self.sobrescrever()     
+    def impedir_duplicatas(self):
+        try:
+            caminho=open('caminhos.txt','r+')
+        except FileNotFoundError:
+            caminho=open('caminhos.txt','w+')
+        try:
+            open_dupli=open('duplicata.txt','r+')
+        except FileNotFoundError:
+            open_dupli=open('duplicata.txt','w+')
+        duplicata=set()
+        caminho.close()
+        caminho=open('caminhos.txt','r+')
+        for c in caminho.readlines():
+            print(c)
+            if c=='\n':
+                pass
+            elif '\n' in c:
+                duplicata.add(c)
+            else:
+                c=c+'\n'
+                duplicata.add(c)
+        
+        for c in duplicata:
+            open_dupli.writelines(c)
+        caminho.close()
+        open_dupli.close()        
+    def sobrescrever(self):
+        caminho=open('caminhos.txt','w+')  
+        open_dupli=open('duplicata.txt','r+')
+        for c in open_dupli:
+            caminho.writelines(c)        
+    def verificar_musica(self):
+        mixer.music.load()
 app=App()
 app.mainloop()
 

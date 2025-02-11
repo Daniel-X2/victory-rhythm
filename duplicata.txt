@@ -1,6 +1,5 @@
 /home/danields/Desktop/projetos/player_musica/musicas/musica4.mp3
 /home/danields/Desktop/projetos/player_musica/musicas/musica1.mp3
-/home/danields/Desktop/projetos/player_musica/imagens/anterior.png
 /home/danields/Desktop/projetos/player_musica/musicas/musica2.mp3
 /home/danields/Desktop/projetos/player_musica/musicas/musica3.mp3
 /home/danields/Desktop/projetos/player_musica/musicas/musica1.mp3.png
