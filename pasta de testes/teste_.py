@@ -1,5 +1,5 @@
 import os.path
-
+import pygame
 class teste():
     def __init__(self,):
         self.caminhos='/home/danields/Músicas/oi'
@@ -64,5 +64,8 @@ class teste():
         open_dupli=open('duplicata.txt','r+')
         for c in open_dupli:
             caminho.writelines(c)
-
-teste()
+pygame.mixer.init()
+pygame.mixer.music.load('kendrik.mp3')
+input(pygame.mixer.music.play())
+pygame.mixer.music.set_endevent(5)
+print(pygame.mixer.music.get_endevent())

@@ -43,14 +43,12 @@ class MyFrame(customtkinter.CTkScrollableFrame):
             
             self.n2.append(n3)
             self.dici[n3]=self.n1
-            
-
     def criar(self):
         
         try:
             nome_musica=self.n2.pop()
             try:
-                algo=''
+                
                 mixer.music.load(self.dici[nome_musica])
                 self.n1=customtkinter.CTkButton(self,text=nome_musica,width=400,command=lambda:(mixer.music.unload(),mixer.music.load(self.dici[nome_musica]),(mixer.music.play()),(self.atualizador(self.dici[nome_musica]))))
                 self.n1.place(x=-5,y=self.n4)
@@ -126,9 +124,7 @@ class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         global atualizador
-        
         mixer.init()
-        mixer.music.set_volume(0)
         self.geometry('400x600')
         self.config(background='#242424')
         self.title('player')
@@ -167,7 +163,6 @@ class App(customtkinter.CTk):
             else:
                 self.after(1000,self.atualizador) 
     def funçoes_iniciais(self):
-        
         self.botao() 
         self.label()
         self.backgroud()
@@ -184,10 +179,11 @@ class App(customtkinter.CTk):
         self.image_button=customtkinter.CTkButton(master=self,text='')
         self.image_button.place(x=182,y=470)
         self.musica_atual='kendrik.mp3'
-        self.progresso=customtkinter.DoubleVar()
+        self.progresso=customtkinter.IntVar()
         self.vari=0
         self.n1=1#aqui ativa o botao play
         self.caminhos=list()
+        self.end_event=0
         caminho=open('caminhos.txt','r+')
         if caminho.readable():
             for c in caminho.readlines():
@@ -223,7 +219,8 @@ class App(customtkinter.CTk):
             self.proximo()
             return    
         mixer.music.play()
-        #mixer.music.set_endevent(self.proximo)
+        evento=pygame.USEREVENT + 1
+        mixer.music.set_endevent(evento)
     def pausar(self):#tudo ok por aqui
         mixer.music.pause()
     def despausar(self):#tudo ok por aqui
@@ -291,14 +288,22 @@ class App(customtkinter.CTk):
         self.texto.place(x=50,y=450)
     def update_label(self,segundos=0,hora=0,minutos=0):#aqui esta tudo ok
         if mixer.music.get_busy():
+            #aqui vai adicionar os segundos e a variavel da barra e tentar deixar sicronizado um com o outro
             self.segundos+=1
             self.vari=self.progresso.get()
             self.vari+=1
             self.progresso.set(self.vari)
-            #print(self.vari,self.segundos)
+
+            self.end_event=self.progresso.get()
+            if self.end_event>=self.duraçao:# aqui vai verificar o termino da musica com base na barra 
+                self.proximo()
+            
         else:
+            self.end_event=self.progresso.get()
+            if self.end_event>=self.duraçao:# aqui vai verificar o termino da musica com base na barra 
+                self.proximo()
+            
             pass
-        
         if self.segundos==60:
             self.segundos=0
             self.minutos+=1
@@ -306,7 +311,7 @@ class App(customtkinter.CTk):
             while self.segundos>60:
                 self.segundos-=60
                 self.minutos+=1 
-        if self.segundos<10 and minutos<10:
+        if self.segundos<10 and self.minutos<10:
             self.texto.configure(text = f'0{self.hora}:0{self.minutos}:0{self.segundos}\r')
         elif self.segundos<10 and self.minutos>=10:
             self.texto.configure(text = f'0{self.hora}:{self.minutos}:0{self.segundos}')
@@ -485,7 +490,7 @@ class App(customtkinter.CTk):
     def musicas(self):
         if self.musica_window is None or not self.musica_window.winfo_exists():
             self.musica_window = musica_window(self)
-            self.musica_window
+            
             self.atualizador()  # create window if its None or destroyed
         else:
             self.musica_window.focus()  # if window exists focus it
@@ -505,7 +510,7 @@ class App(customtkinter.CTk):
                                     bg_color='#242424'
                                     ,command=lambda n1:self.progresso_atual())
         self.barra.place(x=20,y=430)
-    def volume(self):
+    def volume_barra(self):
         self.barra=customtkinter.CTkSlider(self,from_=0,
                                     to=1.0,
                                     width=360,
@@ -518,11 +523,36 @@ class App(customtkinter.CTk):
         self.progresso.set(self.progresso.get())
         if mixer.music.get_busy():
             mixer.music.set_pos(self.progresso.get())
+            self.segundos=self.minutos=self.horas=0
+            
+            self.segundos=self.progresso.get()
+            self.segundos+=1
+            self.vari=self.progresso.get()
+            self.vari+=1
+            self.progresso.set(self.vari)
+            #print(self.vari,self.segundos)
+        else:
+            pass
+        if self.segundos==60:
+            self.segundos=0
+            self.minutos+=1
+        elif self.segundos>60:
+            while self.segundos>60:
+                self.segundos-=60
+                self.minutos+=1 
+        if self.segundos<10 and self.minutos<10:
+            self.texto.configure(text = f'0{self.hora}:0{self.minutos}:0{self.segundos}\r')
+        elif self.segundos<10 and self.minutos>=10:
+            self.texto.configure(text = f'0{self.hora}:{self.minutos}:0{self.segundos}')
+        elif self.segundos>=10 and self.minutos<10:
+            self.texto.configure(text = f'0{self.hora}:0{self.minutos}:{self.segundos}')
+        elif self.segundos>=10 and self.minutos>=10:
+            self.texto.configure(text = f'0{self.hora}:{self.minutos}:{self.segundos}')
     def subtitulo(self):#
         self.autor=titulo.info(self.musica_atual)[2]
         self.sub_titulo=customtkinter.CTkLabel(self,text=self.autor,font=customtkinter.CTkFont(size=15),fg_color='#242424',text_color='black',width=400)
-        self.sub_titulo.place(x=20,y=400)
-    def volume(self):
+        self.sub_titulo.place(x=00,y=400)
+    def volume(self):#oi
         
         mixer.music.set_volume(self.variavel_volume.get())
         self.after(1000,self.volume)
