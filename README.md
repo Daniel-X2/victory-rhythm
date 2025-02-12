@@ -1,2 +1,3 @@
-ola, estou fazendo esse player de musica somente com python, nesse projeto usei o customtkinter como gui
+oi,apos eu começar a estudar poo comecei esse projeto com o intuito de criar meu proprio player de musica, fiz tudo com python e com o customtkinter
+
 
