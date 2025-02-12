@@ -46,7 +46,7 @@ class teste():
         caminho.close()
         caminho=open('caminho.txt','r+')
         for c in caminho.readlines():
-            print(c)
+            #print(c)
             if c=='\n':
                 pass
             elif '\n' in c:

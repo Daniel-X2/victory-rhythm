@@ -1,3 +1,4 @@
+
 import os.path
 from re import I
 import customtkinter as ctk 
@@ -10,9 +11,11 @@ from capas import titulo
 from time import sleep
 from customtkinter import filedialog
 import tkinter
+atualizador=''
 class MyFrame(customtkinter.CTkScrollableFrame):
     def __init__(self, master, **kwargs):# falta configurar os botoes de cada musica pra reproduzir
         super().__init__(master, **kwargs)
+        
         # add widgets onto the frame...
         mixer.init()
         self.label = customtkinter.CTkLabel(self,text='',height=69)
@@ -28,6 +31,7 @@ class MyFrame(customtkinter.CTkScrollableFrame):
                 self.criar()
                 
     def teste(self):
+        
         n1=open('caminhos.txt','r')
         self.n2=list()
         self.dici=dict()
@@ -42,18 +46,24 @@ class MyFrame(customtkinter.CTkScrollableFrame):
             
 
     def criar(self):
+        
         try:
             nome_musica=self.n2.pop()
             try:
+                algo=''
                 mixer.music.load(self.dici[nome_musica])
-                n1=customtkinter.CTkButton(self,text=nome_musica,width=400,command=lambda:(mixer.music.unload(),mixer.music.load(self.dici[nome_musica]),mixer.music.play()))
-                n1.place(x=-5,y=self.n4)
+                self.n1=customtkinter.CTkButton(self,text=nome_musica,width=400,command=lambda:(mixer.music.unload(),mixer.music.load(self.dici[nome_musica]),(mixer.music.play()),(self.atualizador(self.dici[nome_musica]))))
+                self.n1.place(x=-5,y=self.n4)
+                
                 self.n4+=27
             except:
                 self.criar()
             
         except:
-            return    
+            return
+    def atualizador(self,dici):
+        global atualizador
+        atualizador=dici
 class musica_window(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -63,11 +73,13 @@ class musica_window(customtkinter.CTkToplevel):
         self.my_frame.grid(row=0, column=0, sticky="nsew")
         self.geometry("400x400")
         self.resizable(width=False,height=False)
-        self.config(background='#242424')         
+        self.config(background='#242424') 
+        
         #self.title('Musicas')
 class ToplevelWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
         self.geometry("550x350")
         self.config(background='#242424')
         self.resizable(width=False,height=False)
@@ -90,16 +102,22 @@ class ToplevelWindow(customtkinter.CTkToplevel):
         tabview.add("sobre")  
         tabview.set("sobre") 
 
-        
-
+        #nome do programa
+        victory=customtkinter.CTkLabel(master=tabview.tab('sobre'),text='victory-rhythm',text_color='purple',font=customtkinter.CTkFont(size=15))
+        victory.place(x=190,y=110)
+        #versao do programa
+        versao=customtkinter.CTkLabel(master=tabview.tab('sobre'),text='1.0 alpha ',text_color='gray')
+        versao.place(x=190,y=140)
+        #icone 
         imagem_icone=customtkinter.CTkImage(Image.open('imagens/icone_app.png'),size=(100,100))
         icone=customtkinter.CTkLabel(master=tabview.tab('sobre'),text='',image=imagem_icone)
-        icone.place(x=190,y=30)
+        icone.place(x=190,y=0)
+        #aquele textinho sobre o projeto
         texto_sobre=customtkinter.CTkLabel(master=tabview.tab('sobre'),font=customtkinter.CTkFont(size=15),text_color='white',text='''ola, esse e o meu primeiro projeto com o customtkinter e python,
 espero que tenha gostado,se esse projeto te interesou
 e vc quiser aconpanhar esse projeto ou outros e so
 acessar meu github ''')
-        texto_sobre.place(x=33,y=150)
+        texto_sobre.place(x=33,y=170)
 
         git=customtkinter.CTkImage(Image.open('imagens/git.png'),size=(50,40))
         botao_git=customtkinter.CTkButton(master=tabview.tab('sobre'),image=git,text='',fg_color='#242424',width=10,height=10)
@@ -107,6 +125,8 @@ acessar meu github ''')
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
+        global atualizador
+        
         mixer.init()
         mixer.music.set_volume(0)
         self.geometry('400x600')
@@ -116,6 +136,36 @@ class App(customtkinter.CTk):
         self.variaveis_funçoes()
         self.funçoes_iniciais()
         self.subtitulo()
+        self.atualizador()
+        
+    def atualizador(self):# aqui esta tendo um bug de a musica atual esta tendo uma duplicata por causa do atualizador 
+        global atualizador
+        if self.musica_window is None or not self.musica_window.winfo_exists():
+            self.after(1000,self.atualizador)
+        else:
+            pass
+            if atualizador!=self.musica_atual:
+                if atualizador=='':
+                    atualizador=self.musica_atual
+                else:    
+                    self.musica_atual=atualizador
+                self.back=customtkinter.CTkImage(titulo.capa(self.musica_atual),size=(300,300)) 
+                self.imagem_fundo.configure(self,text='',image=self.back)
+                self.imagem_fundo.place_configure(x=50,y=50)
+                #aqui reseta os segundos e os minutos do update label
+                self.segundos=self.minutos=0
+            #atualiza o titulo da janela
+                self.titulo_atual=titulo.info(self.musica_atual)[1]
+                self.title(self.titulo_atual)
+            #aqui atualiza a duraçao da barra 
+                self.duraçao=titulo.info(musica=self.musica_atual)[0]
+                self.progresso.set(0)
+                self.barra.configure(variable=self.progresso,to=self.duraçao)
+                self.autor=titulo.info(self.musica_atual)[2]
+                self.sub_titulo.configure(text=self.autor)
+                self.after(1000,self.atualizador) 
+            else:
+                self.after(1000,self.atualizador) 
     def funçoes_iniciais(self):
         
         self.botao() 
@@ -215,7 +265,7 @@ class App(customtkinter.CTk):
                                                 height=10,
                                                 text='',
                                                 fg_color='#242424',
-                                                command=self.botao_play,
+                                                command=self.atualizador,
                                                 bg_color='#242424')
             
             self.n1+=1
@@ -232,7 +282,7 @@ class App(customtkinter.CTk):
                                                 height=10,
                                                 corner_radius=50,
                                                 bg_color='#242424',
-                                                command=self.botao_play)
+                                                command=self.atualizador)
             
             self.n1+=1
             self.image_button.place(x=182,y=470)      
@@ -304,8 +354,9 @@ class App(customtkinter.CTk):
     def reiniciar_musica():#tudo ok por aqui
         mixer.music.rewind()    
     def proximo(self):#tudo ok por aqui
+        global atualizador
         if len(self.musica_proxima)>=1:
-            print(len(self.musica_proxima))
+            #print(len(self.musica_proxima))
             try:
                 if len(self.musica_proxima)!=0:
                     self.musica_anterior.append(self.musica_atual)
@@ -315,7 +366,7 @@ class App(customtkinter.CTk):
                     self.musica_atual=self.musica_atual.replace('\n','')
                 try:
                     mixer.music.load(self.musica_atual)
-                    print(self.musica_atual)
+                    #print(self.musica_atual)
                     pygame.mixer.music.play()
                 except:
                     print('erro no load ')
@@ -327,10 +378,13 @@ class App(customtkinter.CTk):
                 self.update_total()
                
             #aqui serve pra atualizar a capa das musicas
+                atualizador=self.musica_atual
                 self.back=customtkinter.CTkImage(titulo.capa(self.musica_atual),size=(300,300)) 
-                self.imagem_fundo=customtkinter.CTkLabel(self,text='',image=self.back)
+                self.imagem_fundo.configure(self,text='',image=self.back)
                 self.imagem_fundo.place_configure(x=50,y=50)
-
+                print(self.musica_atual)
+                print(atualizador)
+                print('oie')
             #aqui reseta os segundos e os minutos do update label
                 self.segundos=self.minutos=0
             #atualiza o titulo da janela
@@ -383,7 +437,7 @@ class App(customtkinter.CTk):
 
             #pega a nova capa e coloca
             self.back=customtkinter.CTkImage(titulo.capa(self.musica_atual),size=(300,300)) 
-            self.imagem_fundo=customtkinter.CTkLabel(self,text='',image=self.back)
+            self.imagem_fundo.configure(self,text='',image=self.back)
             self.imagem_fundo.place_configure(x=50,y=50)
             #reseta os segundos 
             self.segundos=self.minutos=self.hora=0
@@ -430,7 +484,9 @@ class App(customtkinter.CTk):
         optionmenu.place(x=320,y=10)
     def musicas(self):
         if self.musica_window is None or not self.musica_window.winfo_exists():
-            self.musica_window = musica_window(self)  # create window if its None or destroyed
+            self.musica_window = musica_window(self)
+            self.musica_window
+            self.atualizador()  # create window if its None or destroyed
         else:
             self.musica_window.focus()  # if window exists focus it
     def update_barra(self):#tudo ok
@@ -519,7 +575,7 @@ class App(customtkinter.CTk):
         caminho.close()
         caminho=open('caminhos.txt','r+')
         for c in caminho.readlines():
-            print(c)
+            #print(c)# nao sei porque colocquei
             if c=='\n':
                 pass
             elif '\n' in c:
@@ -537,8 +593,6 @@ class App(customtkinter.CTk):
         open_dupli=open('duplicata.txt','r+')
         for c in open_dupli:
             caminho.writelines(c)        
-    def verificar_musica(self):
-        mixer.music.load()
 app=App()
 app.mainloop()
 
