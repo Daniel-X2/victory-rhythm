@@ -1,67 +1,102 @@
-
 import os.path
-from re import I
 import customtkinter as ctk 
 import customtkinter 
 from PIL import Image,ImageTk
 from capas import backgroud
+from capas import titulo
 from pygame import mixer
 import pygame
-from capas import titulo
-from time import sleep
 from customtkinter import filedialog
 import tkinter
+from sqlalchemy import Column, Integer, String,ForeignKey,Boolean
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+engine = create_engine('sqlite:///:meu.db', echo=True)
+Session = sessionmaker(bind=engine)
+session = Session()
+Base = declarative_base()
+class Caminho(Base):
+    __tablename__ = 'caminho'  # if you use base it is obligatory
+
+    id = Column(Integer, primary_key=True)  # obligatory
+    name = Column(String)
+    diretorio = Column(String)
+    #status=Column(Boolean)
+
+Base.metadata.create_all(engine)
 atualizador=''
+musicas=0
+n1=0
+
 class MyFrame(customtkinter.CTkScrollableFrame):
-    def __init__(self, master, **kwargs):# falta configurar os botoes de cada musica pra reproduzir
+    def __init__(self, master, **kwargs):# falta colocar um verificador pra nao colocar musicas que nao funcionanm aqui
         super().__init__(master, **kwargs)
-        
+        global dici,session
+        self.session=session
         # add widgets onto the frame...
         mixer.init()
         self.label = customtkinter.CTkLabel(self,text='',height=69)
         self.label.grid(row=0, column=0, padx=20)
-        self.n4=40
+        self.n4=0
         self.meuovo=0
-        self.teste()
-        tamanho=69*len(self.n2)
-        self.label.configure(height=tamanho)
-        self.criar()
-        if len(self.n2)>0:
-            while len(self.n2)>0:
-                self.criar()
-                
-    def teste(self):
+        #self.teste()
         
-        n1=open('caminhos.txt','r')
-        self.n2=list()
+        self.diretorio=session.query(Caminho.diretorio).all()
+        self.nome_musica=session.query(Caminho.name).all()
         self.dici=dict()
+        self.n2=list()
+        self.n3=list()
+        for c in self.nome_musica:
+            for n in c:
+                self.n2.append(n)
+        self.n3=self.n2.copy()
+
+        for c in self.diretorio:
+            for n in c:
+                self.dici[self.n2.pop(0)]=n
+        tamanho=27*(len(self.n3))
         
-        for c in n1.readlines():
-            self.n1=c.replace('\n','')
-            
-            n3=titulo.info(self.n1)[2]
-            
-            self.n2.append(n3)
-            self.dici[n3]=self.n1
-    def criar(self):
-        
+        self.label.configure(height=tamanho)
+    
+        if len(self.n3)>0:
+            while len(self.n3)>0:
+                self.criar()          
+    def criar(self):#aqui esta bastante otimizado
+        global atualizador
         try:
-            nome_musica=self.n2.pop()
-            try:
-                
-                mixer.music.load(self.dici[nome_musica])
-                self.n1=customtkinter.CTkButton(self,text=nome_musica,width=400,command=lambda:(mixer.music.unload(),mixer.music.load(self.dici[nome_musica]),(mixer.music.play()),(self.atualizador(self.dici[nome_musica]))))
-                self.n1.place(x=-5,y=self.n4)
-                
-                self.n4+=27
-            except:
+            
+            nome_musica=self.n3.pop()
+            if nome_musica=='r':
                 self.criar()
+            else:    
+                try:
+                    #mixer.music.load(self.dici[nome_musica])
+                    self.n1=customtkinter.CTkButton(self,text=nome_musica,width=400,command=lambda:self.player_botao(dici=self.dici,nome_musica=nome_musica))#(mixer.music.unload(),mixer.music.load(self.dici[nome_musica]),(mixer.music.play()),(self.atualizador(self.dici[nome_musica]))))
+                    self.n1.place(x=-5,y=self.n4)
+                    self.n4+=27
+                except:
+                    self.criar()
             
         except:
             return
     def atualizador(self,dici):
         global atualizador
         atualizador=dici
+    def player_botao(self,dici,nome_musica):
+        try:
+            mixer.music.unload()
+            mixer.music.load(dici[nome_musica])
+            mixer.music.play()
+            self.atualizador(dici[nome_musica])
+        except:
+            usu=self.session.query(Caminho).filter_by(name=nome_musica).first()
+            usu2=self.session.query(Caminho).filter_by(diretorio=dici[nome_musica]).first()
+            self.session.delete(usu)
+            self.session.delete(usu2)
+            self.session.commit()
+            self.n1.destroy()
+            
 class musica_window(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -72,12 +107,11 @@ class musica_window(customtkinter.CTkToplevel):
         self.geometry("400x400")
         self.resizable(width=False,height=False)
         self.config(background='#242424') 
+        self.title('Musicas')
         
-        #self.title('Musicas')
 class ToplevelWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
         self.geometry("550x350")
         self.config(background='#242424')
         self.resizable(width=False,height=False)
@@ -99,7 +133,6 @@ class ToplevelWindow(customtkinter.CTkToplevel):
         tabview.place(x=25,y=10)
         tabview.add("sobre")  
         tabview.set("sobre") 
-
         #nome do programa
         victory=customtkinter.CTkLabel(master=tabview.tab('sobre'),text='victory-rhythm',text_color='purple',font=customtkinter.CTkFont(size=15))
         victory.place(x=190,y=110)
@@ -123,23 +156,41 @@ acessar meu github ''')
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
+        self.variavel_banco()
+        self.variaveis_funçoes()
+        
         global atualizador
+        #self.session.query(Caminho).all()
         mixer.init()
         self.geometry('400x600')
         self.config(background='#242424')
-        self.title('player')
-        self.resizable(width=False,height=False)   #aqui evita que a tela seja redimesionada
-        self.variaveis_funçoes()
-        self.funçoes_iniciais()
-        self.subtitulo()
-        self.atualizador()
+        self.title('victory-rhythm')
         
+        self.resizable(width=False,height=False)   #aqui evita que a tela seja redimesionada
+        self.player(self.musica_atual)
+        self.subtitulo()
+        self.funçoes_iniciais()
+        self.atualizador()
+    def variavel_banco(self):
+        global session,Base
+        self.session=session  
+        self.Base=Base
+        usu=self.session.query(Caminho).count()
+        self.musica_proxima=list()
+        if usu>0:
+            n1=self.session.query(Caminho.diretorio).all()
+            for c in n1:
+                for n in c:
+                    
+                    self.musica_proxima.append(n)
+        else:
+            self.abrir_pastas()
     def atualizador(self):# aqui esta tendo um bug de a musica atual esta tendo uma duplicata por causa do atualizador 
         global atualizador
         if self.musica_window is None or not self.musica_window.winfo_exists():
             self.after(1000,self.atualizador)
         else:
-            pass
+            
             if atualizador!=self.musica_atual:
                 if atualizador=='':
                     atualizador=self.musica_atual
@@ -150,49 +201,44 @@ class App(customtkinter.CTk):
                 self.imagem_fundo.place_configure(x=50,y=50)
                 #aqui reseta os segundos e os minutos do update label
                 self.segundos=self.minutos=0
-            #atualiza o titulo da janela
-                self.titulo_atual=titulo.info(self.musica_atual)[1]
-                self.title(self.titulo_atual)
+                self.segundos
+                self.update_total()
             #aqui atualiza a duraçao da barra 
                 self.duraçao=titulo.info(musica=self.musica_atual)[0]
                 self.progresso.set(0)
-                self.barra.configure(variable=self.progresso,to=self.duraçao)
+                #self.barra.configure(variable=self.progresso,to=self.duraçao)
                 self.autor=titulo.info(self.musica_atual)[2]
                 self.sub_titulo.configure(text=self.autor)
                 self.after(1000,self.atualizador) 
             else:
                 self.after(1000,self.atualizador) 
     def funçoes_iniciais(self):
+        
         self.botao() 
         self.label()
         self.backgroud()
         self.variavel_do_total()
         self.update_total()
         self.update_barra()
-        self.update_label()
+        self.update_label()# o erro todo ta aqui
         self.botao_play()
-        self.player(self.musica_atual)
+        
         self.botao_janela()
         self.volume()
+        
     def variaveis_funçoes(self):
         self.segundos=self.minutos=self.hora=0
         self.image_button=customtkinter.CTkButton(master=self,text='')
         self.image_button.place(x=182,y=470)
-        self.musica_atual='kendrik.mp3'
+        self.musica_atual=self.musica_proxima.pop()
         self.progresso=customtkinter.IntVar()
         self.vari=0
         self.n1=1#aqui ativa o botao play
         self.caminhos=list()
         self.end_event=0
-        caminho=open('caminhos.txt','r+')
-        if caminho.readable():
-            for c in caminho.readlines():
-                
-                self.caminhos.append(c)
-                
-        else:
-            self.abrir_pastas()   
-        self.musica_proxima=list(self.caminhos.copy())
+        self.end_event2=0
+        #self.caminhos.copy()
+       
         #print(self.musica_proxima)
         self.musica_anterior=list()
         
@@ -208,19 +254,28 @@ class App(customtkinter.CTk):
                                     )
         self.barra_volume.place(x=20,y=20)
     def backgroud(self):
-        self.back=customtkinter.CTkImage(titulo.capa(self.musica_atual),size=(300,300)) 
-        self.imagem_fundo=customtkinter.CTkLabel(self,text='',image=self.back)
-        self.imagem_fundo.place(x=50,y=50)
+        self.fra=customtkinter.CTkFrame(self,bg_color='#242424',width=310,height=310,corner_radius=10)
+        self.fra.place(x=45,y=45)
+        try:
+            self.back=customtkinter.CTkImage(titulo.capa(self.musica_atual),size=(300,300)) 
+            self.imagem_fundo=customtkinter.CTkLabel(self,text='',fg_color='black',bg_color='#242424',image=self.back)
+            self.imagem_fundo.place(x=50,y=50)
+        except:
+            self.proximo()
     def player(self,musica):#tudo ok por aqui
         mixer.init()
         try:
             mixer.music.load(musica)
         except:
-            self.proximo()
-            return    
+            while True:
+                try:
+                    self.musica_atual=self.musica_proxima.pop()
+                    mixer.music.load(self.musica_atual)
+                    break
+                except:
+                    pass
+                print()
         mixer.music.play()
-        evento=pygame.USEREVENT + 1
-        mixer.music.set_endevent(evento)
     def pausar(self):#tudo ok por aqui
         mixer.music.pause()
     def despausar(self):#tudo ok por aqui
@@ -236,6 +291,7 @@ class App(customtkinter.CTk):
                                     fg_color='#242424',
                                     bg_color='#242424',
                                     command=self.anterior)
+        
         botao_anterior.place(x=114,y=470)
         #botao proximo
         botao_p = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projetos/player_musica/imagens/proximo.png"),
@@ -262,11 +318,11 @@ class App(customtkinter.CTk):
                                                 height=10,
                                                 text='',
                                                 fg_color='#242424',
-                                                command=self.atualizador,
+                                                command=self.botao_play,
                                                 bg_color='#242424')
             
             self.n1+=1
-            self.image_button.place(x=182,y=470)
+            self.image_button.place(x=181,y=470)
             
         else:
             self.despausar()
@@ -279,31 +335,27 @@ class App(customtkinter.CTk):
                                                 height=10,
                                                 corner_radius=50,
                                                 bg_color='#242424',
-                                                command=self.atualizador)
+                                                command=self.botao_play)
             
             self.n1+=1
             self.image_button.place(x=182,y=470)      
     def label(self):# aqui esta tudo ok
         self.texto=ctk.CTkLabel(self,text='',bg_color='#242424',text_color='black')
         self.texto.place(x=50,y=450)
-    def update_label(self,segundos=0,hora=0,minutos=0):#aqui esta tudo ok
+    def update_label(self,segundos=0,hora=0,minutos=0):#tenho que verificar sobre o end event 1 porque esta tendo erro
         if mixer.music.get_busy():
             #aqui vai adicionar os segundos e a variavel da barra e tentar deixar sicronizado um com o outro
             self.segundos+=1
             self.vari=self.progresso.get()
+            print(self.segundos)
             self.vari+=1
             self.progresso.set(self.vari)
-
-            self.end_event=self.progresso.get()
-            if self.end_event>=self.duraçao:# aqui vai verificar o termino da musica com base na barra 
-                self.proximo()
             
         else:
             self.end_event=self.progresso.get()
-            if self.end_event>=self.duraçao:# aqui vai verificar o termino da musica com base na barra 
+            if self.end_event>=self.duraçao :# aqui vai verificar o termino da musica com base na barra 
                 self.proximo()
             
-            pass
         if self.segundos==60:
             self.segundos=0
             self.minutos+=1
@@ -319,8 +371,6 @@ class App(customtkinter.CTk):
             self.texto.configure(text = f'0{self.hora}:0{self.minutos}:{self.segundos}')
         elif self.segundos>=10 and self.minutos>=10:
             self.texto.configure(text = f'0{self.hora}:{self.minutos}:{self.segundos}')
-        
-        
         self.texto.after(1000,self.update_label) # chama este método novamente em 1.000 milissegundos  
     def variavel_do_total(self):
         self.total=ctk.CTkLabel(self,text='',bg_color='#242424',text_color='black')
@@ -328,6 +378,20 @@ class App(customtkinter.CTk):
     def update_total(self):#aqui esta tudo ok
         #duraçao total da musica
         self.duraçao=titulo.info(musica=self.musica_atual)[0]
+        if self.duraçao=='r':
+            try:
+                mixer.music.load(self.musica_atual)
+            except:
+                usu=session.query(Caminho).filter_by(diretorio=self.musica_atual).first()
+                self.session.delete(usu)
+                self.session.commit()
+                try:
+                    self.proximo()
+                except:
+                    try:
+                        self.anterior()
+                    except:
+                        self.anterior    
         segundos_total=self.duraçao
         minutos_total=0
         horas_total=0
@@ -353,7 +417,7 @@ class App(customtkinter.CTk):
             self.abrir_diretorio=filedialog.askdirectory(title='abra a pasta de suas musicas')
             self.variavel_do_verificador(self.abrir_diretorio)
         except:
-            print('erro nas pastas')    
+            print('erro nas pastasaa')    
     def tirar_musica(self):#tudo ok por aqui
         mixer.music.unload()   
     def reiniciar_musica():#tudo ok por aqui
@@ -361,7 +425,7 @@ class App(customtkinter.CTk):
     def proximo(self):#tudo ok por aqui
         global atualizador
         if len(self.musica_proxima)>=1:
-            #print(len(self.musica_proxima))
+            #print(len(self.musica_atual))
             try:
                 if len(self.musica_proxima)!=0:
                     self.musica_anterior.append(self.musica_atual)
@@ -369,13 +433,23 @@ class App(customtkinter.CTk):
                     self.musica_atual=str(self.musica_proxima.pop())
                 if '\n' in self.musica_atual:
                     self.musica_atual=self.musica_atual.replace('\n','')
+    
                 try:
+                    
                     mixer.music.load(self.musica_atual)
                     #print(self.musica_atual)
                     pygame.mixer.music.play()
+                    
                 except:
-                    print('erro no load ')
-                    self.proximo()
+                    while True:
+                        try:
+                            self.musica_atual=self.musica_proxima.pop()
+                            mixer.music.load(self.musica_atual)
+                            break
+                        except:
+                            pass
+                    mixer.music.play()    
+                    
                 if self.n1%2==0:
                     pass
                 else:
@@ -384,25 +458,27 @@ class App(customtkinter.CTk):
                
             #aqui serve pra atualizar a capa das musicas
                 atualizador=self.musica_atual
-                self.back=customtkinter.CTkImage(titulo.capa(self.musica_atual),size=(300,300)) 
+                try:
+                    self.back=customtkinter.CTkImage(titulo.capa(self.musica_atual),size=(300,300))
+                except:
+                    return
+                self.update_total()    
                 self.imagem_fundo.configure(self,text='',image=self.back)
                 self.imagem_fundo.place_configure(x=50,y=50)
-                print(self.musica_atual)
-                print(atualizador)
-                print('oie')
+                
             #aqui reseta os segundos e os minutos do update label
-                self.segundos=self.minutos=0
+                self.segundos=self.minutos=self.hora=0
             #atualiza o titulo da janela
-                self.titulo_atual=titulo.info(self.musica_atual)[1]
-                self.title(self.titulo_atual)
+                
+                
             #aqui atualiza a duraçao da barra 
                 self.duraçao=titulo.info(musica=self.musica_atual)[0]
                 self.progresso.set(0)
                 self.barra.configure(variable=self.progresso,to=self.duraçao)
-            
-
                 self.autor=titulo.info(self.musica_atual)[2]
                 self.sub_titulo.configure(text=self.autor)
+                
+
             except IndexError:
                 print('sem musica')
                 print('='*50)
@@ -412,6 +488,7 @@ class App(customtkinter.CTk):
         else:
             print('sem musica')    
     def anterior(self):
+        global atualizador
         try:
             if len(self.musica_anterior)!=0:
                 self.musica_proxima.append(self.musica_atual)
@@ -420,35 +497,36 @@ class App(customtkinter.CTk):
             if '\n' in self.musica_atual:
                 self.musica_atual=self.musica_atual.replace('\n','')
             try:
+                agora=titulo.info(self.musica_atual)
+                #print(self.musica_atual,'oie')
                 mixer.music.load(self.musica_atual)
                 pygame.mixer.music.play()
             except:
-                print('erro no load')
-                self.anterior()
+                while True:
+                    try:
+                        self.musica_atual=self.musica_anterior.pop()
+                        mixer.music.load(self.musica_atual)
+                        break
+                    except:
+                        pass
+                mixer.music.play()
             if self.n1%2==0:
                 pass
             else:
                 self.botao_play()
-
-            #if len(self.musica_anterior)!=0: #and len(anterior)!=0:
-            #    self.musica_proxima.append(self.musica_atual)
-           # self.musica_atual=self.musica_anterior.pop()
-           # pygame.mixer.music.load(self.musica_atual)
-           # pygame.mixer.music.play()
-           # if self.n1%2==0:
-           ### else:
-           #     self.botao_play()  
-            self.update_total()    
-
+            self.update_total()   
+            atualizador=self.musica_atual
             #pega a nova capa e coloca
-            self.back=customtkinter.CTkImage(titulo.capa(self.musica_atual),size=(300,300)) 
+            try:
+                self.back=customtkinter.CTkImage(titulo.capa(self.musica_atual),size=(300,300))
+            except:
+                return  
             self.imagem_fundo.configure(self,text='',image=self.back)
             self.imagem_fundo.place_configure(x=50,y=50)
             #reseta os segundos 
             self.segundos=self.minutos=self.hora=0
             #atualiza o titulo da janela
-            self.titulo_atual=titulo.info(self.musica_atual)[1]
-            self.title(self.titulo_atual)
+            
             #aqui atualiza a duraçao da barra
             self.duraçao=titulo.info(musica=self.musica_atual)[0]
             self.progresso.set(0)
@@ -490,7 +568,6 @@ class App(customtkinter.CTk):
     def musicas(self):
         if self.musica_window is None or not self.musica_window.winfo_exists():
             self.musica_window = musica_window(self)
-            
             self.atualizador()  # create window if its None or destroyed
         else:
             self.musica_window.focus()  # if window exists focus it
@@ -498,7 +575,7 @@ class App(customtkinter.CTk):
         #infomaçoes da barra
         self.vari=self.progresso.get()
         #print(self.progresso.get())
-        self.vari+=1
+        #self.vari+=1
         self.progresso.set(self.vari)
         #print(self.vari)
         
@@ -557,7 +634,7 @@ class App(customtkinter.CTk):
         mixer.music.set_volume(self.variavel_volume.get())
         self.after(1000,self.volume)
     def verificador(self):
-        for c in self.n1:
+        for c in self.lista_dir:
             junçao=self.caminhos+'/'+c
             if os.path.isfile(junçao):
                 self.arquivos.append(junçao)
@@ -569,29 +646,27 @@ class App(customtkinter.CTk):
                 self.mp3.add(c)
     def variavel_do_verificador(self,pasta):
         self.caminhos=pasta
-        self.n1=os.listdir(self.caminhos)
+        self.lista_dir=os.listdir(self.caminhos)
         self.arquivos=list()
         self.pastas=list()
         self.mp3=set()
-        self.arquivo_aleatorio=list()
         self.verificador()
         self.separador()
         while len(self.pastas)>0:
             self.caminhos=self.pastas.pop()
-            self.n1=os.listdir(self.caminhos)
+            self.lista_dir=os.listdir(self.caminhos)
             self.verificador()
             self.separador()
-        try:    
-            caminho=open('caminhos.txt','r+')
-        except FileNotFoundError:
-            caminho=open('caminhos.txt','w+')
-        finally:
-            for c in self.mp3:
-                caminho.writelines(c)
-                caminho.writelines('\n')
-        caminho.close()
-        self.impedir_duplicatas()  
-        self.sobrescrever()     
+        print(self.mp3)    
+        self.adicionar_banco()
+    def adicionar_banco(self):#funciona porem leva 80 segundos
+        for c in self.mp3:
+            n1=c.replace('\n','')
+            n3=titulo.info(n1)[2]
+            self.caminho=Caminho(name=n3,diretorio=n1)
+            self.session.add(self.caminho)
+            self.session.commit()
+        print('cheguei')    
     def impedir_duplicatas(self):
         try:
             caminho=open('caminhos.txt','r+')
@@ -617,12 +692,9 @@ class App(customtkinter.CTk):
         for c in duplicata:
             open_dupli.writelines(c)
         caminho.close()
-        open_dupli.close()        
-    def sobrescrever(self):
-        caminho=open('caminhos.txt','w+')  
-        open_dupli=open('duplicata.txt','r+')
-        for c in open_dupli:
-            caminho.writelines(c)        
-app=App()
+        open_dupli.close()  
+
+
+app=App()    
 app.mainloop()
 

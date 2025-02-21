@@ -7,7 +7,7 @@ import io
 def info(musica):
     try:    
         tag: TinyTag = TinyTag.get(musica, image=True)
-        image: Image | None = tag.images.any
+        #image: Image | None = tag.images.any
         artist: str = tag.artist
         duration: str = tag.duration
         album: str = tag.title
@@ -16,7 +16,7 @@ def info(musica):
         titulo=album
         return duracao,nome,titulo
     except:
-        return "errrrro"
+        return 'errrro'
 def capa(musica):
     tag: TinyTag = TinyTag.get(musica, image=True)
     image: Image | None = tag.images.any.data
