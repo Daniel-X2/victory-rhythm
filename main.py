@@ -28,6 +28,7 @@ Base.metadata.create_all(engine)
 atualizador=''
 musicas=0
 n1=0
+#falta fazer a musica ir automaticamente pra a proxima musica
 
 class MyFrame(customtkinter.CTkScrollableFrame):
     def __init__(self, master, **kwargs):# falta colocar um verificador pra nao colocar musicas que nao funcionanm aqui
@@ -347,15 +348,17 @@ class App(customtkinter.CTk):
             #aqui vai adicionar os segundos e a variavel da barra e tentar deixar sicronizado um com o outro
             self.segundos+=1
             self.vari=self.progresso.get()
-            print(self.segundos)
+            #print(self.segundos)
             self.vari+=1
             self.progresso.set(self.vari)
             
         else:
             self.end_event=self.progresso.get()
+            self.end_event2=mixer.music.get_pos()
             if self.end_event>=self.duraçao :# aqui vai verificar o termino da musica com base na barra 
                 self.proximo()
-            
+            elif self.end_event2==-1:
+                self.proximo()
         if self.segundos==60:
             self.segundos=0
             self.minutos+=1
