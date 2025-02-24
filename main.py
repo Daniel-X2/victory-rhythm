@@ -2,7 +2,7 @@ import os.path
 import customtkinter as ctk 
 import customtkinter 
 from PIL import Image,ImageTk
-from capas import backgroud
+#from capas import backgroud
 from capas import titulo
 from pygame import mixer
 import pygame
@@ -140,8 +140,13 @@ class ToplevelWindow(customtkinter.CTkToplevel):
         #versao do programa
         versao=customtkinter.CTkLabel(master=tabview.tab('sobre'),text='1.0 alpha ',text_color='gray')
         versao.place(x=190,y=140)
-        #icone 
-        imagem_icone=customtkinter.CTkImage(Image.open('imagens/icone_app.png'),size=(100,100))
+        #icone
+        #aqui vai achar as imagens
+        diretorio_icone_main=os.path.dirname(os.path.realpath(__file__))
+        pasta=os.path.join(diretorio_icone_main,'imagens')
+        imagem_pasta=os.path.join(pasta,'icone_app.png')
+
+        imagem_icone=customtkinter.CTkImage(Image.open(imagem_pasta),size=(100,100))
         icone=customtkinter.CTkLabel(master=tabview.tab('sobre'),text='',image=imagem_icone)
         icone.place(x=190,y=0)
         #aquele textinho sobre o projeto
@@ -150,8 +155,12 @@ espero que tenha gostado,se esse projeto te interesou
 e vc quiser aconpanhar esse projeto ou outros e so
 acessar meu github ''')
         texto_sobre.place(x=33,y=170)
+        #escrever algo
+        diretorio_git_main=os.path.dirname(os.path.realpath(__file__))
+        pasta_git=os.path.join(diretorio_git_main,'imagens')
+        imagem_git=os.path.join(pasta_git,'git.png')
 
-        git=customtkinter.CTkImage(Image.open('imagens/git.png'),size=(50,40))
+        git=customtkinter.CTkImage(Image.open(imagem_git),size=(50,40))
         botao_git=customtkinter.CTkButton(master=tabview.tab('sobre'),image=git,text='',fg_color='#242424',width=10,height=10)
         botao_git.place(x=400,y=230)
 class App(customtkinter.CTk):
@@ -283,7 +292,10 @@ class App(customtkinter.CTk):
         mixer.music.unpause()    
     def botao(self):#tudo ok por aqui
         #botao anterior
-        botao_a = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projetos/player_musica/imagens/anterior.png"),
+        diretorio_main=os.path.dirname(os.path.realpath(__file__))
+        pasta=os.path.join(diretorio_main,'imagens')
+        imagem_botao=os.path.join(pasta,'anterior.png')
+        botao_a = customtkinter.CTkImage(Image.open(imagem_botao),
                                                     size=(41, 28))
         botao_anterior=ctk.CTkButton(self,image=botao_a,
                                     width=10,
@@ -295,7 +307,10 @@ class App(customtkinter.CTk):
         
         botao_anterior.place(x=114,y=470)
         #botao proximo
-        botao_p = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projetos/player_musica/imagens/proximo.png"),
+        diretorio_main1=os.path.dirname(os.path.realpath(__file__))
+        pasta1=os.path.join(diretorio_main1,'imagens')
+        imagem_botao1=os.path.join(pasta1,'proximo.png')
+        botao_p = customtkinter.CTkImage(Image.open(imagem_botao1),
                                                     size=(41,28))
         botao_proximo=ctk.CTkButton(self,text='',
                                     image=botao_p,
@@ -311,7 +326,10 @@ class App(customtkinter.CTk):
         self.image_button.destroy()
         if n1%2==0:
             self.pausar()
-            self.button_image = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projetos/player_musica/imagens/play1.png"), size=(30, 30)) 
+            diretorio_pause_main=os.path.dirname(os.path.realpath(__file__))
+            pasta_pause=os.path.join(diretorio_pause_main,'imagens')
+            imagem_botao_pause=os.path.join(pasta_pause,'play1.png')
+            self.button_image = customtkinter.CTkImage(Image.open(imagem_botao_pause), size=(30, 30)) 
             self.image_button = customtkinter.CTkButton(master=self,
                                                 anchor='center',
                                                 image=self.button_image,
@@ -320,14 +338,17 @@ class App(customtkinter.CTk):
                                                 text='',
                                                 fg_color='#242424',
                                                 command=self.botao_play,
-                                                bg_color='#242424')
+                                                bg_color='#242424',font=("Arial",44))
             
             self.n1+=1
             self.image_button.place(x=181,y=470)
             
         else:
             self.despausar()
-            self.button_image = customtkinter.CTkImage(Image.open("/home/danields/Desktop/projetos/player_musica/imagens/pause.png"), size=(32, 32))
+            diretorio_play_main=os.path.dirname(os.path.realpath(__file__))
+            pasta_play=os.path.join(diretorio_play_main,'imagens')
+            imagem_botao_play=os.path.join(pasta_play,'pause.png')
+            self.button_image = customtkinter.CTkImage(Image.open(imagem_botao_play), size=(32, 32))
             self.image_button = customtkinter.CTkButton(master=self,
                                                 anchor='center',
                                                 text="",
@@ -341,7 +362,7 @@ class App(customtkinter.CTk):
             self.n1+=1
             self.image_button.place(x=182,y=470)      
     def label(self):# aqui esta tudo ok
-        self.texto=ctk.CTkLabel(self,text='',bg_color='#242424',text_color='black')
+        self.texto=ctk.CTkLabel(self,text='',bg_color='#242424',text_color='black',font=("Arial",14))
         self.texto.place(x=50,y=450)
     def update_label(self,segundos=0,hora=0,minutos=0):#tenho que verificar sobre o end event 1 porque esta tendo erro
         if mixer.music.get_busy():
