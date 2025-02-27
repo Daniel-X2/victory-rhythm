@@ -1,6 +1,6 @@
 <p align="center">
   <picture>
-    <img src="https://github.com/Danizura/victory-rhythm/blob/main/imagens/icone_app.png" alt="Texto Alternativo">
+    <img src="https://github.com/Danizura/victory-rhythm/blob/main/imagens/icone_app.png" alt="Texto Alternativo" width="50%">
   </picture>
 </p>
 
