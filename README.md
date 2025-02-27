@@ -1,4 +1,4 @@
-![Texto Alternativo](https://github.com/Danizura/victory-rhythm/blob/main/imagens/icone_app.png)
+<img src="https://github.com/Danizura/victory-rhythm/blob/main/imagens/icone_app.png" alt="Texto Alternativo">
 # victory-rhythm
 
 ## Descriçao:
