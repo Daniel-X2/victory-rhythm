@@ -1,0 +1,6 @@
+pygame==2.6.1
+SQLAlchemy==2.0.34
+Pillow==10.4.0
+matplotlib==3.9.2
+customtkinter==5.2.2
+tinytag==2.1.2
