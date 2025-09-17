@@ -93,9 +93,9 @@ tinytag==2.1.2
 
 ```bash
 # Dentro do ambiente virtual
-python -m victory_rhythm
+python -m main.py
 
-## 📂 Estrutura de pastas
+
 
 ---
 
@@ -105,10 +105,9 @@ python -m victory_rhythm
 2. Crie uma branch para sua melhoria:  
    ```bash
    git checkout -b nome-da-feature
-   ```  
-3. Garanta que todos os testes passem (`pytest`).  
-4. Atualize `requirements.txt` caso adicione novas bibliotecas.  
-5. Abra um PR descrevendo a mudança.
+   ```   
+3. Atualize `requirements.txt` caso adicione novas bibliotecas.  
+4. Abra um PR descrevendo a mudança.
 
 **Regras de estilo**
 
